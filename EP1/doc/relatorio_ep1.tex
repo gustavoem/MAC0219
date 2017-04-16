@@ -1,0 +1,66 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=1in,footskip=0.25in]{geometry} % set margins
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref} 
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx}    % needed for include graphics
+\usepackage{indentfirst}
+\usepackage{float}       % needed for [H] figure placement option
+\usepackage{setspace}    % needed for doublespacing
+\usepackage{tikz}
+
+% Macros
+\renewcommand{\familydefault}{\sfdefault} % sans-serif
+\newcommand{\lowtext}[1]{$_{\text{#1}}$}
+
+% Adds ./img/ to the path of figures
+\graphicspath{./img/}
+
+\title{Relatório EP1 - MAC0219}
+\author{Bruno Sesso, Gustavo Estrela de Matos, Lucas Sung Jun Hong}
+
+\begin{document}
+% Espaçamento duplo 
+\doublespacing
+\begin{titlepage}
+    \vfill
+    \begin{center}
+        \vspace{0.5\textheight}
+        \noindent
+        Instituto de Matemática e Estatística \\
+        EP1 - MAC0219 \\
+        \vfill
+        \noindent
+        {\Large Cálculo do Conjunto de Mandelbrot
+        em Paralelo com Pthreads e OpenMP} \\
+        \bigskip
+        \bigskip
+        \begin{tabular}{ll}
+            {\bf Professor:} & {Alfredo Goldman} \\
+            {\bf Alunos:}    & {Bruno Sesso} \\
+                             & {Gustavo Estrela de Matos} \\
+                             & {Lucas Sung Jun Hong} \\
+        \end{tabular} \\
+        \vspace{\fill}
+       \bigskip
+        São Paulo, \today \\
+       \bigskip
+    \end{center}
+\end{titlepage}
+
+\pagebreak
+\tableofcontents
+\pagebreak
+
+\section{Introdução}
+\section{Código Sequencial}
+\section{Código em OpenMP}
+\section{Código em Pthreads}
+\section{Discussões Gerais}
+\section{Conclusão}
+\end{document}
+
+
