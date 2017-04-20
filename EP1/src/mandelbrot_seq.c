@@ -2,19 +2,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+/* Global Variables*/
 double c_x_min;
 double c_x_max;
 double c_y_min;
 double c_y_max;
-
 double pixel_width;
 double pixel_height;
-
 int iteration_max = 200;
-
 int image_size;
 unsigned char **image_buffer;
-
 int i_x_max;
 int i_y_max;
 int image_buffer_size;
@@ -50,6 +47,15 @@ void allocate_image_buffer () {
     };
 };
 
+
+void free_image_buffer () {
+    int i;
+    for (i = 0; i < image_buffer_size; i++)
+        free (image_buffer[i]);
+    free (image_buffer);
+}
+
+
 void init (int argc, char *argv[]) {
     if (argc < 6) {
         printf ("usage: ./mandelbrot_seq c_x_min c_x_max c_y_min \
@@ -81,6 +87,7 @@ void init (int argc, char *argv[]) {
     };
 };
 
+
 void update_rgb_buffer (int iteration, int x, int y) {
     int color;
     if (iteration == iteration_max) {
@@ -97,6 +104,7 @@ void update_rgb_buffer (int iteration, int x, int y) {
     };
 };
 
+
 void write_to_file () {
     FILE *file;
     char *filename               = "output.ppm";
@@ -111,6 +119,7 @@ void write_to_file () {
     };
     fclose (file);
 };
+
 
 void compute_mandelbrot () {
     double z_x;
@@ -155,14 +164,12 @@ void compute_mandelbrot () {
     };
 };
 
+
 int main (int argc, char *argv[]) {
-    init(argc, argv);
-
-    allocate_image_buffer();
-
-    compute_mandelbrot();
-
-    write_to_file();
-
+    init (argc, argv);
+    allocate_image_buffer ();
+    compute_mandelbrot ();
+    write_to_file ();
+    free_image_buffer ();
     return 0;
 };
