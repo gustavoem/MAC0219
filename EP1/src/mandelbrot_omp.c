@@ -113,26 +113,6 @@ void write_to_file () {
     fclose (file);
 };
 
-void compute_mandelbrot () {
-    int iteration;
-    int i_x, i_y;
-    double c_x, c_y;
-
-    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(16) schedule(dynamic)
-    for (i_y = 0; i_y < i_y_max; i_y++) {
-        c_y = c_y_min + i_y * pixel_height;
-        if (fabs (c_y) < pixel_height / 2) {
-            c_y = 0.0;
-        };
-        for (i_x = 0; i_x < i_x_max; i_x++) {
-            c_x         = c_x_min + i_x * pixel_width;
-            iteration = escape_iteration (c_x, c_y);
-            update_rgb_buffer (iteration, i_x, i_y);
-        };
-    };
-};
-
-
 int escape_iteration (double c_x, double c_y) {
     double z_x, z_y, z_x_squared, z_y_squared;
     double escape_radius_squared = 4;
@@ -151,6 +131,25 @@ int escape_iteration (double c_x, double c_y) {
     };
     return iteration;
 }
+
+void compute_mandelbrot () {
+    int iteration;
+    int i_x, i_y;
+    double c_x, c_y;
+
+    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(16) schedule(dynamic)
+    for (i_y = 0; i_y < i_y_max; i_y++) {
+        c_y = c_y_min + i_y * pixel_height;
+        if (fabs (c_y) < pixel_height / 2) {
+            c_y = 0.0;
+        };
+        for (i_x = 0; i_x < i_x_max; i_x++) {
+            c_x         = c_x_min + i_x * pixel_width;
+            iteration = escape_iteration (c_x, c_y);
+            update_rgb_buffer (iteration, i_x, i_y);
+        };
+    };
+};
 
 int main (int argc, char *argv[]) {
     init(argc, argv);
