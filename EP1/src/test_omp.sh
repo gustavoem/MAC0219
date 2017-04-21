@@ -1,11 +1,13 @@
 #/bin/bash
 
-dir_name=results/omp_results-$(date +%Y-%m-%d:%H:%M:%S)/
-nTests=10
-
 if [ ! -d results ]; then
 	mkdir results
 fi
+
+dir_name=results/omp_results-$(date +%Y-%m-%d:%H:%M:%S)/
+mkdir $dir_name
+
+nTests=10
 
 echo "Starting tests"
 for i in $(seq 1 16); do
