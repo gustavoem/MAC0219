@@ -20,6 +20,8 @@ int i_x_max;
 int i_y_max;
 int image_buffer_size;
 
+int nThreads;
+
 int gradient_size = 16;
 int colors[17][3] = {
                         {66, 30, 15},
@@ -72,6 +74,7 @@ void init (int argc, char *argv[]) {
         sscanf (argv[3], "%lf", &c_y_min);
         sscanf (argv[4], "%lf", &c_y_max);
         sscanf (argv[5], "%d", &image_size);
+        sscanf (argv[6], "%d", &nThreads);
 
         i_x_max           = image_size;
         i_y_max           = image_size;
@@ -137,7 +140,7 @@ void compute_mandelbrot () {
     int i_x, i_y;
     double c_x, c_y;
 
-    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(16) schedule(dynamic)
+    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(nThreads) schedule(dynamic)
     for (i_y = 0; i_y < i_y_max; i_y++) {
         c_y = c_y_min + i_y * pixel_height;
         if (fabs (c_y) < pixel_height / 2) {
