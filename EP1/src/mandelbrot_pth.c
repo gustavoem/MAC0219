@@ -25,7 +25,7 @@ pthread_t * callThd;
 
 /* Data structure used to compute a chunk of mandelbrot points */
 typedef struct {
-    int chunk_size;
+    int size;
     int start_index;
 } MANDELBROT_CHUNK;
 
@@ -143,17 +143,31 @@ void write_to_file () {
 
 
 void compute_mandelbrot () {
-    int iteration;
-    int i_x, i_y, i;
+    int i;
     void *status;
-    double c_x, c_y;
     MANDELBROT_CHUNK *chunks = create_chunks ();
     
     for (i = 0; i < num_threads; i++)
         pthread_create (&callThd[i], NULL, compute_mandelbrot_chunk, 
-                NULL);
+                &chunks[i]);
     
-    for (i = 0; i < i_y_max * i_x_max; i++) {
+    for (i = 0; i < num_threads; i++)
+        pthread_join (callThd[i], &status);
+    free (chunks);
+};
+
+
+void *compute_mandelbrot_chunk (void *args) {
+    MANDELBROT_CHUNK *ck;
+    int i_y, i_x, i, iteration;
+    int chunk_start, chunk_end;
+    double c_x, c_y;
+    ck = (MANDELBROT_CHUNK *) args;
+    chunk_start = ck->start_index;
+    chunk_end = chunk_start + ck->size;
+    /*printf ("Thread computing chunk: %d to %d\n", ck->start_index,*/
+            /*ck->start_index + ck->size - 1);*/
+    for (i = ck->start_index; i < chunk_end; i++) {
         i_y = i / i_y_max;
         i_x = i % i_x_max;
         c_x = c_x_min + i_x * pixel_width;
@@ -164,24 +178,23 @@ void compute_mandelbrot () {
         iteration = escape_iteration (c_x, c_y);
         update_rgb_buffer (iteration, i_x, i_y);
     }
-
-    for (i = 0; i < num_threads; i++)
-        pthread_join (callThd[i], &status);
-};
-
-
-void *compute_mandelbrot_chunk (void *args) {
-    printf ("say my name\n");
     return NULL;
 }
 
 
 MANDELBROT_CHUNK *create_chunks () {
+    int nchunks, i, chunk_size, remainder_chunk_size;
     MANDELBROT_CHUNK *chunks;
-    int nchunks, i, chunk_size;
     chunk_size = (i_y_max * i_x_max) / num_threads;
-    chunks = malloc (num_threads * sizeof (MANDELBROT_CHUNK));
-    
+    remainder_chunk_size = (i_y_max * i_x_max) % num_threads;
+    nchunks = num_threads;
+    chunks = malloc (nchunks * sizeof (MANDELBROT_CHUNK));
+    for (i = 0; i < nchunks; i++) {
+        chunks[i].size = chunk_size;
+        chunks[i].start_index = i * chunk_size;
+    }
+    chunks[nchunks - 1].size += remainder_chunk_size;
+    return chunks;
 }
 
 
