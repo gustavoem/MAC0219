@@ -1,0 +1,10 @@
+Numro de threads x tempo
+-> para static
+	diminuiu o tempo gradualmente até umas 64 threads. 4threads->25s 64threads->15s
+-> para dynamic
+	diminuiu o tempo gradualmente até umas 8 threads. 4threads->18s 8threads->15s
+
+Dynamic >> Static
+porque complexidade de cada iteração pode ou não ser a mesma.
+
+
