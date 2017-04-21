@@ -114,49 +114,43 @@ void write_to_file () {
 };
 
 void compute_mandelbrot () {
-    double z_x;
-    double z_y;
-    double z_x_squared;
-    double z_y_squared;
-    double escape_radius_squared = 4;
     int iteration;
-    int i_x;
-    int i_y;
-    double c_x;
-    double c_y;
+    int i_x, i_y;
+    double c_x, c_y;
 
-    #pragma omp parallel for private(z_x, z_y, z_x_squared, z_y_squared, i_x, i_y, c_x, c_y, iteration) //num_threads(20)
+    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(16) schedule(dynamic)
     for (i_y = 0; i_y < i_y_max; i_y++) {
-        // printf("tid: %d nthreads: %d\n", omp_get_thread_num(), omp_get_num_threads());
         c_y = c_y_min + i_y * pixel_height;
         if (fabs (c_y) < pixel_height / 2) {
             c_y = 0.0;
         };
-
         for (i_x = 0; i_x < i_x_max; i_x++) {
             c_x         = c_x_min + i_x * pixel_width;
-
-            z_x         = 0.0;
-            z_y         = 0.0;
-
-            z_x_squared = 0.0;
-            z_y_squared = 0.0;
-
-            for (iteration = 0;
-                iteration < iteration_max && \
-                ((z_x_squared + z_y_squared) < escape_radius_squared);
-                iteration++) {
-                z_y         = 2 * z_x * z_y + c_y;
-                z_x         = z_x_squared - z_y_squared + c_x;
-
-                z_x_squared = z_x * z_x;
-                z_y_squared = z_y * z_y;
-            };
-
+            iteration = escape_iteration (c_x, c_y);
             update_rgb_buffer (iteration, i_x, i_y);
         };
     };
 };
+
+
+int escape_iteration (double c_x, double c_y) {
+    double z_x, z_y, z_x_squared, z_y_squared;
+    double escape_radius_squared = 4;
+    int iteration;
+    z_x         = 0.0;
+    z_y         = 0.0;
+    z_x_squared = 0.0;
+    z_y_squared = 0.0;
+    for (iteration = 0; iteration < iteration_max && \
+            ((z_x_squared + z_y_squared) < escape_radius_squared);
+            iteration++) {
+        z_y         = 2 * z_x * z_y + c_y;
+        z_x         = z_x_squared - z_y_squared + c_x;
+        z_x_squared = z_x * z_x;
+        z_y_squared = z_y * z_y;
+    };
+    return iteration;
+}
 
 int main (int argc, char *argv[]) {
     init(argc, argv);
