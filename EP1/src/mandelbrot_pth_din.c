@@ -93,8 +93,8 @@ void init (int argc, char *argv[]) {
                 -2.0 2.0 11500\n");
         printf ("    Seahorse Valley:      ./mandelbrot_pth -0.8 -0.7 \
                 0.05 0.15 11500\n");
-        printf ("    Elephant Valley:      ./mandelbrot_pth 0.175 0.375 \
-                -0.1 0.1 11500\n");
+        printf ("    Elephant Valley:      ./mandelbrot_pth 0.175 \
+                0.375 -0.1 0.1 11500\n");
         printf ("    Triple Spiral Valley: ./mandelbrot_pth -0.188 \
                 -0.012 0.554 0.754 11500\n");
         exit (0);
@@ -183,6 +183,7 @@ void compute_mandelbrot () {
         pthread_join (callThd[i], &status);
     /*printf ("Freeing chunks\n");*/
     free (chunks);
+    free (free_thread);
 };
 
 
