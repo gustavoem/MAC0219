@@ -166,20 +166,22 @@ void compute_mandelbrot () {
     }
     while (i < nchunks) {
         pthread_cond_wait (&free_thread_cv, &cv_mutex);
-        for (j = 0; j < num_threads; j++)
+        for (j = 0; j < num_threads; j++) {
             if (free_thread[j]) {
                 free_thread[j] = 0;
                 pthread_join (callThd[j], &status);
                 chunks[i].solving_thread_id = j;
                 pthread_create (&callThd[j], NULL,
                         compute_mandelbrot_chunk, &chunks[i++]);
-
+                if (i >= nchunks) break;
             }
+        }
     }
     pthread_cond_wait (&free_thread_cv, &cv_mutex);
     pthread_mutex_unlock (&cv_mutex);
-    for (i = 0; i < num_threads && i < nchunks; i++)
+    for (i = 0; i < num_threads; i++)
         pthread_join (callThd[i], &status);
+    /*printf ("Freeing chunks\n");*/
     free (chunks);
 };
 
@@ -213,7 +215,7 @@ void *compute_mandelbrot_chunk (void *args) {
     pthread_cond_signal (&free_thread_cv);
     /*printf ("Thread %d is unlocking\n", tid);*/
     pthread_mutex_unlock (&cv_mutex);
-    return NULL;
+    pthread_exit (NULL);
 }
 
 

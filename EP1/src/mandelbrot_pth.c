@@ -3,6 +3,7 @@
 #include <math.h>
 #include <pthread.h>
 
+
 /* Global Variables */
 double c_x_min;
 double c_x_max;
@@ -19,9 +20,6 @@ int image_buffer_size;
 /* pthread variables*/
 int num_threads = 4;
 pthread_t * callThd;
-int * free_thread;
-pthread_mutex_t cv_mutex;
-pthread_cond_t free_thread_cv;
 
 
 
@@ -29,7 +27,6 @@ pthread_cond_t free_thread_cv;
 typedef struct {
     int size;
     int start_index;
-    int solving_thread_id;
 } MANDELBROT_CHUNK;
 
 void allocate_image_buffer ();
@@ -40,7 +37,6 @@ void compute_mandelbrot ();
 int escape_iteration (double c_x, double c_y);
 void *compute_mandelbrot_chunk (void *args);
 MANDELBROT_CHUNK *create_chunks ();
-int get_free_thread ();
 
 
 
@@ -112,6 +108,7 @@ void init (int argc, char *argv[]) {
         pixel_height      = (c_y_max - c_y_min) / i_y_max;
         if (argc > 6)
             sscanf (argv[6], "%d", &num_threads);
+
     };
 };
 
@@ -149,35 +146,16 @@ void write_to_file () {
 
 
 void compute_mandelbrot () {
-    int i, t, nchunks, chunk_size = 10;
+    int i;
     void *status;
-    nchunks = (i_y_max * i_x_max) / chunk_size;
-    MANDELBROT_CHUNK *chunks = create_chunks (nchunks);
-    free_thread = malloc (num_threads * sizeof (int));
-    for (i = 0; i < num_threads; i++) 
-        free_thread[i] = 1;
+    MANDELBROT_CHUNK *chunks = create_chunks ();
     
-    pthread_mutex_lock (&cv_mutex);
-    for (i = 0; i < num_threads && i < nchunks; i++) {
-        chunks[i].solving_thread_id = i;
-        free_thread[i] = 0;
+    for (i = 0; i < num_threads; i++)
         pthread_create (&callThd[i], NULL, compute_mandelbrot_chunk, 
                 &chunks[i]);
-    }
-    while (i < nchunks) {
-        pthread_cond_wait (&free_thread_cv, &cv_mutex);
-        t = get_free_thread ();
-        pthread_join (callThd[t], &status);
-        chunks[i].solving_thread_id = t;
-        pthread_create (&callThd[t], NULL, compute_mandelbrot_chunk, 
-                &chunks[i++]);
-    }
-    pthread_mutex_unlock (&cv_mutex);
-    for (i = 0; i < num_threads && i < nchunks; i++)
-    { 
-        if (free_thread[i])
-            pthread_join (callThd[i], &status);
-    }
+    
+    for (i = 0; i < num_threads; i++)
+        pthread_join (callThd[i], &status);
     free (chunks);
 };
 
@@ -185,14 +163,13 @@ void compute_mandelbrot () {
 void *compute_mandelbrot_chunk (void *args) {
     MANDELBROT_CHUNK *ck;
     int i_y, i_x, i, iteration;
-    int chunk_start, chunk_end, tid;
+    int chunk_start, chunk_end;
     double c_x, c_y;
     ck = (MANDELBROT_CHUNK *) args;
     chunk_start = ck->start_index;
     chunk_end = chunk_start + ck->size;
-    tid = ck->solving_thread_id;
-    /*printf ("Thread %d computing chunk: %d to %d\n", tid, chunk_start,*/
-            /*chunk_end - 1);*/
+    /*printf ("Thread computing chunk: %d to %d\n", ck->start_index,*/
+            /*ck->start_index + ck->size - 1);*/
     for (i = ck->start_index; i < chunk_end; i++) {
         i_y = i / i_y_max;
         i_x = i % i_x_max;
@@ -204,24 +181,20 @@ void *compute_mandelbrot_chunk (void *args) {
         iteration = escape_iteration (c_x, c_y);
         update_rgb_buffer (iteration, i_x, i_y);
     }
-    pthread_mutex_lock (&cv_mutex);
-    free_thread[tid] = 1;
-    pthread_cond_signal (&free_thread_cv);
-    pthread_mutex_unlock (&cv_mutex);
     return NULL;
 }
 
 
-MANDELBROT_CHUNK *create_chunks (int nchunks) {
-    int i, chunk_size, remainder_chunk_size;
+MANDELBROT_CHUNK *create_chunks () {
+    int nchunks, i, chunk_size, remainder_chunk_size;
     MANDELBROT_CHUNK *chunks;
-    chunk_size = (i_y_max * i_x_max) / nchunks;
-    remainder_chunk_size = (i_y_max * i_x_max) % nchunks;
+    chunk_size = (i_y_max * i_x_max) / num_threads;
+    remainder_chunk_size = (i_y_max * i_x_max) % num_threads;
+    nchunks = num_threads;
     chunks = malloc (nchunks * sizeof (MANDELBROT_CHUNK));
     for (i = 0; i < nchunks; i++) {
         chunks[i].size = chunk_size;
         chunks[i].start_index = i * chunk_size;
-        chunks[i].solving_thread_id = -1;
     }
     chunks[nchunks - 1].size += remainder_chunk_size;
     return chunks;
@@ -248,29 +221,14 @@ int escape_iteration (double c_x, double c_y) {
 }
 
 
-int get_free_thread () {
-    int j;
-    for (j = 0; j < num_threads; j++)
-        if (free_thread[j]) {
-            free_thread[j] = 0;
-            return j;
-        }
-    return -1;
-}
-
-
 int main (int argc, char *argv[]) {
     init (argc, argv);
     allocate_image_buffer ();
     callThd = (pthread_t *) malloc (num_threads * sizeof (pthread_t));
-    pthread_mutex_init (&cv_mutex, NULL);
-    pthread_cond_init (&free_thread_cv, NULL);
     compute_mandelbrot ();
     free (callThd);
     write_to_file ();
     free_image_buffer ();
-    pthread_mutex_destroy (&cv_mutex);
-    pthread_cond_destroy (&free_thread_cv);
     pthread_exit (NULL);
     return 0;
 };
