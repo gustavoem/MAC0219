@@ -10,12 +10,23 @@ mkdir $dir_name
 nTests=10
 
 echo "Starting tests"
-for i in $(seq 1 16); do
-	file=$i"threads.log"
-	echo "Testing with $i threads"
+for i in $(seq 0 5); do
+	nThreads=$((2 ** $i))
 
-	perf stat -r $nTests ./mandelbrot_omp -2.5 1.5 -2.0 2.0 11500 $i 2> $dir_name"full_"$file
-	perf stat -r $nTests ./mandelbrot_omp -0.8 -0.7 0.05 0.15 11500 $i 2> $dir_name"seahorse_"$file
-	perf stat -r $nTests ./mandelbrot_omp 0.175 0.375 -0.1 0.1 11500 $i 2> $dir_name"elephant_"$file
-	perf stat -r $nTests ./mandelbrot_omp -0.188 -0.012 0.554 0.754 11500 $i 2> $dir_name"spiral_"$file
+	# thread_dir=$dir_name$nThreads"-threads/"
+	# mkdir thread_dir
+
+	file=$nThreads"threads.log"
+	echo "Testing with $nThreads threads"
+
+
+	for j in $(seq 4 13); do
+		size=$((2 ** $j))
+		echo "\tsize: $size"
+
+		perf stat -r $nTests ./mandelbrot_omp -2.5 1.5 -2.0 2.0 $size $nThreads 2> $dir_name"full_"$file
+		perf stat -r $nTests ./mandelbrot_omp -0.8 -0.7 0.05 0.15 $size $nThreads 2> $dir_name"seahorse_"$file
+		perf stat -r $nTests ./mandelbrot_omp 0.175 0.375 -0.1 0.1 $size $nThreads 2> $dir_name"elephant_"$file
+		perf stat -r $nTests ./mandelbrot_omp -0.188 -0.012 0.554 0.754 $size $nThreads 2> $dir_name"spiral_"$file
+	done
 done
