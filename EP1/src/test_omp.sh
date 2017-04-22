@@ -24,9 +24,9 @@ for i in $(seq 0 5); do
 		size=$((2 ** $j))
 		echo "\tsize: $size"
 
-		perf stat -r $nTests ./mandelbrot_omp -2.5 1.5 -2.0 2.0 $size $nThreads 2> $dir_name"full_"$file
-		perf stat -r $nTests ./mandelbrot_omp -0.8 -0.7 0.05 0.15 $size $nThreads 2> $dir_name"seahorse_"$file
-		perf stat -r $nTests ./mandelbrot_omp 0.175 0.375 -0.1 0.1 $size $nThreads 2> $dir_name"elephant_"$file
-		perf stat -r $nTests ./mandelbrot_omp -0.188 -0.012 0.554 0.754 $size $nThreads 2> $dir_name"spiral_"$file
+		perf stat -r $nTests ./mandelbrot_omp_nd -2.5 1.5 -2.0 2.0 $size $nThreads 2> $dir_name"full_"$file
+		perf stat -r $nTests ./mandelbrot_omp_nd -0.8 -0.7 0.05 0.15 $size $nThreads 2> $dir_name"seahorse_"$file
+		perf stat -r $nTests ./mandelbrot_omp_nd 0.175 0.375 -0.1 0.1 $size $nThreads 2> $dir_name"elephant_"$file
+		perf stat -r $nTests ./mandelbrot_omp_nd -0.188 -0.012 0.554 0.754 $size $nThreads 2> $dir_name"spiral_"$file
 	done
 done
