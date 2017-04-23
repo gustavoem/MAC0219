@@ -29,10 +29,10 @@ typedef struct {
     int start_index;
 } MANDELBROT_CHUNK;
 
-void allocate_image_buffer ();
+/*void allocate_image_buffer ();*/
 void init (int argc, char *argv[]);
-void update_rgb_buffer (int iteration, int x, int y);
-void write_to_file ();
+/*void update_rgb_buffer (int iteration, int x, int y);*/
+/*void write_to_file ();*/
 void compute_mandelbrot ();
 int escape_iteration (double c_x, double c_y);
 void *compute_mandelbrot_chunk (void *args);
@@ -168,8 +168,6 @@ void *compute_mandelbrot_chunk (void *args) {
     ck = (MANDELBROT_CHUNK *) args;
     chunk_start = ck->start_index;
     chunk_end = chunk_start + ck->size;
-    /*printf ("Thread computing chunk: %d to %d\n", ck->start_index,*/
-            /*ck->start_index + ck->size - 1);*/
     for (i = ck->start_index; i < chunk_end; i++) {
         i_y = i / i_y_max;
         i_x = i % i_x_max;
@@ -179,7 +177,7 @@ void *compute_mandelbrot_chunk (void *args) {
             c_y = 0.0;
         };
         iteration = escape_iteration (c_x, c_y);
-        update_rgb_buffer (iteration, i_x, i_y);
+        /*update_rgb_buffer (iteration, i_x, i_y);*/
     }
     return NULL;
 }
@@ -223,12 +221,12 @@ int escape_iteration (double c_x, double c_y) {
 
 int main (int argc, char *argv[]) {
     init (argc, argv);
-    allocate_image_buffer ();
+    /*allocate_image_buffer ();*/
     callThd = (pthread_t *) malloc (num_threads * sizeof (pthread_t));
     compute_mandelbrot ();
     free (callThd);
-    write_to_file ();
-    free_image_buffer ();
+    /*write_to_file ();*/
+    /*free_image_buffer ();*/
     pthread_exit (NULL);
     return 0;
 };
