@@ -32,16 +32,14 @@ typedef struct {
     int solving_thread_id;
 } MANDELBROT_CHUNK;
 
-void allocate_image_buffer ();
+/*void allocate_image_buffer ();*/
 void init (int argc, char *argv[]);
-void update_rgb_buffer (int iteration, int x, int y);
-void write_to_file ();
+/*void update_rgb_buffer (int iteration, int x, int y);*/
+/*void write_to_file ();*/
 void compute_mandelbrot ();
 int escape_iteration (double c_x, double c_y);
 void *compute_mandelbrot_chunk (void *args);
 MANDELBROT_CHUNK *create_chunks ();
-int get_free_thread ();
-
 
 
 int gradient_size = 16;
@@ -181,7 +179,6 @@ void compute_mandelbrot () {
     pthread_mutex_unlock (&cv_mutex);
     for (i = 0; i < num_threads; i++)
         pthread_join (callThd[i], &status);
-    /*printf ("Freeing chunks\n");*/
     free (chunks);
     free (free_thread);
 };
@@ -196,8 +193,6 @@ void *compute_mandelbrot_chunk (void *args) {
     chunk_start = ck->start_index;
     chunk_end = chunk_start + ck->size;
     tid = ck->solving_thread_id;
-    /*printf ("Thread %d computing chunk: %d to %d\n", tid, chunk_start,*/
-            /*chunk_end - 1);*/
     for (i = ck->start_index; i < chunk_end; i++) {
         i_y = i / i_y_max;
         i_x = i % i_x_max;
@@ -207,14 +202,11 @@ void *compute_mandelbrot_chunk (void *args) {
             c_y = 0.0;
         };
         iteration = escape_iteration (c_x, c_y);
-        update_rgb_buffer (iteration, i_x, i_y);
+        /*update_rgb_buffer (iteration, i_x, i_y);*/
     }
-    /*printf ("Thread %d wants to acquire lock!\n", tid) ;*/
     pthread_mutex_lock (&cv_mutex);
     free_thread[tid] = 1;
-    /*printf ("Thread %d is finishing!\n", tid);*/
     pthread_cond_signal (&free_thread_cv);
-    /*printf ("Thread %d is unlocking\n", tid);*/
     pthread_mutex_unlock (&cv_mutex);
     pthread_exit (NULL);
 }
@@ -256,27 +248,16 @@ int escape_iteration (double c_x, double c_y) {
 }
 
 
-int get_free_thread () {
-    int j;
-    for (j = 0; j < num_threads; j++)
-        if (free_thread[j]) {
-            free_thread[j] = 0;
-            return j;
-        }
-    return -1;
-}
-
-
 int main (int argc, char *argv[]) {
     init (argc, argv);
-    allocate_image_buffer ();
+    /*allocate_image_buffer ();*/
     callThd = (pthread_t *) malloc (num_threads * sizeof (pthread_t));
     pthread_mutex_init (&cv_mutex, NULL);
     pthread_cond_init (&free_thread_cv, NULL);
     compute_mandelbrot ();
     free (callThd);
-    write_to_file ();
-    free_image_buffer ();
+    /*write_to_file ();*/
+    /*free_image_buffer ();*/
     pthread_mutex_destroy (&cv_mutex);
     pthread_cond_destroy (&free_thread_cv);
     pthread_exit (NULL);
