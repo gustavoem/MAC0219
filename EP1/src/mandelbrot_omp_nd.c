@@ -110,23 +110,19 @@ int escape_iteration (double c_x, double c_y) {
     return iteration;
 }
 
-void compute_mandelbrot () {
-    int iteration;
-    int i_x, i_y;
-    double c_x, c_y;
+void write_to_file () {
+    FILE *file;
+    char *filename               = "output.ppm";
+    char *comment                = "# ";
+    int max_color_component_value = 255;
 
-    #pragma omp parallel for private(i_x, i_y, c_x, c_y, iteration) num_threads(nThreads) schedule(dynamic)
-    for (i_y = 0; i_y < i_y_max; i_y++) {
-        c_y = c_y_min + i_y * pixel_height;
-        if (fabs (c_y) < pixel_height / 2) {
-            c_y = 0.0;
-        };
-        for (i_x = 0; i_x < i_x_max; i_x++) {
-            c_x         = c_x_min + i_x * pixel_width;
-            iteration = escape_iteration (c_x, c_y);
-            update_rgb_buffer (iteration, i_x, i_y);
-        };
+    file = fopen (filename, "wb");
+    fprintf (file, "P6\n %s\n %d\n %d\n %d\n", comment,
+            i_x_max, i_y_max, max_color_component_value);
+    for (int i = 0; i < image_buffer_size; i++){
+        fwrite (image_buffer[i], 1 , 3, file);
     };
+    fclose (file);
 };
 
 int main (int argc, char *argv[]) {
