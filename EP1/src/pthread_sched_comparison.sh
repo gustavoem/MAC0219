@@ -1,5 +1,5 @@
 MEASUREMENTS=10
-ITERATIONS=7
+ITERATIONS=3
 INITIAL_SIZE=32
 THREAD_NUM=4
 
@@ -8,7 +8,7 @@ if [ ! -d results ]; then
 fi
 
 SIZE=$INITIAL_SIZE
-NAMES=('mandelbrot_pth' 'mandelbrot_pth_din')
+NAMES=('mandelbrot_pth' 'mandelbrot_pth_sta')
 
 make > /dev/null
 for NAME in ${NAMES[@]}; do
@@ -27,4 +27,4 @@ for NAME in ${NAMES[@]}; do
     mv *.log results/$NAME
     rm output.ppm
 done
-python ./gen_graph/time_by_size_graphs.py pth pth_din full
+python ./gen_graph/time_by_size_graphs.py pth pth_sta full
