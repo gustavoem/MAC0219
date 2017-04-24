@@ -84,21 +84,12 @@ def plot_timeXthread(results):
     # ax.yaxis.grid(True)
     plt.show()
 
-
-
-if __name__ == '__main__':
-    results_dir = sys.argv[1]
-
+def get_results(results_dir):
     if results_dir[-1] != '/':
         results_dir+='/'
 
     inputs = ["full", "seahorse", "elephant", "spiral"]
     results = {}
-
-
-    print("*" + results_dir + "*")
-
-    test = sys.argv[1]
     for i in range(0, 6):
         nThreads = 2 ** i
         results[nThreads] = {}
@@ -120,6 +111,67 @@ if __name__ == '__main__':
                         results[nThreads][size][region]["avg"] = avg
                         results[nThreads][size][region]["std_dev"] = std_dev
 
+    return results
 
-    plot_timeXthread(results)
-    plot_timeXinput(results)
+def plot_compare_timeXthread(results, results2):
+    reg = "full"
+    NUM_COLORS = 10
+    fig = plt.figure(figsize=(14, 8))
+    cm = plt.get_cmap('gist_rainbow')
+    ax = fig.add_subplot(111)
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+
+    xlist = []
+    ylists = [[] for _ in range(4, 14)]
+    ylists2 = [[] for _ in range(4, 14)]
+    for i in range(0, 6):
+        nThreads = 2 ** i
+        xlist.append(nThreads)
+        for j in range (4, 14):
+            size = 2 ** j
+            ylists[j - 4].append(results[nThreads][size][reg]["avg"])
+            ylists2[j - 4].append(results2[nThreads][size][reg]["avg"])
+
+    legend_handles = []
+    legends = []
+    for i, ylist in enumerate(ylists):
+        size = 2 ** (i + 4)
+        sizex, = plt.plot(xlist, ylist, 'o', mfc='none')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+        legend_handles.append(sizex)
+        legends.append(str(size) + " px")
+
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+    for i, ylist in enumerate(ylists2):
+        size = 2 ** (i + 4)
+        plt.plot(xlist, ylist, 's', mfc='none')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+    ax.legend(legend_handles, legends)
+
+    plt.title('Time of execution X number of threads')
+    plt.ylabel('Time (s)')
+    plt.xlabel('Number of threads')
+    # ax.yaxis.grid(True)
+    plt.show()
+
+if __name__ == '__main__':
+    results_dir = sys.argv[1]
+    if results_dir[-1] != '/':
+        results_dir+='/'
+    results = get_results(results_dir)
+        
+
+    results_dir2 = ""
+    results2 = {}
+    if (len(sys.argv) == 3):
+        results_dir2 = sys.argv[2]
+        if results_dir2[-1] != '/':
+            results_dir2+='/'
+        results2 = get_results(results_dir2)
+        print(results2 == results)
+
+        plot_compare_timeXthread(results, results2)
+
+    else:
+        plot_timeXthread(results)
+        plot_timeXinput(results)
