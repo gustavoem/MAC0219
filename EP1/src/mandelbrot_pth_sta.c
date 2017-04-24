@@ -3,6 +3,10 @@
 #include <math.h>
 #include <pthread.h>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 13604e675ea897dccbaa2ca6f727b0d02120e796
 /* Global Variables */
 double c_x_min;
 double c_x_max;
@@ -22,9 +26,12 @@ pthread_t * callThd;
 
 
 
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 13604e675ea897dccbaa2ca6f727b0d02120e796
 /* Data structure used to compute a chunk of mandelbrot points */
 typedef struct {
     int size;

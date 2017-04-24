@@ -2,6 +2,12 @@
 
 import sys
 import re
+<<<<<<< HEAD
+=======
+import matplotlib
+# Unset X as default plot window
+matplotlib.use ('Agg')
+>>>>>>> 13604e675ea897dccbaa2ca6f727b0d02120e796
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -43,9 +49,16 @@ for program_name in programs:
 handlers, labels = ax.get_legend_handles_labels ()
 handlers = [h[0] for h in handlers]
 ax.legend(handlers, labels, loc = 'upper left', numpoints = 1)
+<<<<<<< HEAD
 plt.xlabel ("Tamanho de instância")
 plt.ylabel ("Tempo médio de execução")
 plt.title ("Comparação de tempo gasto em diferentes programas na " +
     "região " + input_name.title ())
+=======
+plt.xlabel ("Tamanho de instancia")
+plt.ylabel ("Tempo medio de execucao")
+plt.title ("Comparacao de tempo gasto em diferentes programas na " +
+    "regiao " + input_name.title ())
+>>>>>>> 13604e675ea897dccbaa2ca6f727b0d02120e796
 filename = 'time_x_size' + '-'.join (programs)
 plt.savefig(filename + '.png')

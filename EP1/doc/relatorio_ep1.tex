@@ -11,6 +11,7 @@
 \usepackage{float}       % needed for [H] figure placement option
 \usepackage{setspace}    % needed for doublespacing
 \usepackage{tikz}
+\usepackage{algpseudocode}
 
 % Macros
 \renewcommand{\familydefault}{\sfdefault} % sans-serif
@@ -58,9 +59,50 @@
 \section{Introdução}
 \section{Código Sequencial}
 \section{Código em OpenMP}
+
+
 \section{Código em Pthreads}
+Utilizamos duas diferentes abordagens para paralelizar o código com
+o uso de pthreads, tentando se aproximar ao comportamento do OpenMP e 
+suas diretivas {\em omp parallel for schedule (dynamic)} e {\em omp 
+parallel for schedule (static)}. As diferenças de funcionamento dos 
+dois códigos está na maneira em que o trabalho é dividido e como ele é
+distribuido para cada thread.
+
+\subsection{Implementação com Divisão Estática}
+Chamamos de implementação com divisão estática a versão do nosso 
+código em pthreads no qual o trabalho é dividido em $n$ pedaços de mesmo 
+tamanho, e cada pedaço é dado a uma thread. Chamamos essa implementação
+de estática porque cada thread recebe apenas um bloco de trabalho,
+pré-determinado pela divisão feita, que será processado do começo ao
+fim (no escopo da thread) pela mesma thread.
+
+Para implementar esse código, precisamos apenas construir uma estrutura
+de dados que era capaz de guardar um bloco de pixels a ser calculado.
+Dado essa estrutura, basta criar uma thread para cada bloco de trabalho,
+que por sua vez deve calcular os pixels correspondentes e atualizar o 
+buffer de cores.
+
+Devemos observar que essa implementação pode implicar em threads ociosas
+enquanto outras estão trabalhando. Como a quantidade de iterações
+necessárias para se calcular o valor de um pixel varia, é possível que
+um bloco de pixels seja calculado muito mais rápido do que outro; 
+imagine por exemplo um bloco onde cada ponto calculado diverge 
+rápidamente e outro bloco onde isso não acontece. Portanto, como a 
+divisão de trabalho é estática, é provável que uma thread termine seu
+trabalho muito antes de outra, o que significa em um uso não muito bom
+de recursos da máquina.
+
+Uma possível solução para esse problema seria o aumento no número de 
+threads, o que cria uma fragmentação maior do trabalho. Essa 
+fragmentação ameniza o problema anterior porque divide mais o trabalho,
+deixando menor a diferença de tempo necessário para se calcular cada 
+parte. Entretanto, criar um número excessivo de threads pode dar mais
+trabalho ao escalonador do sistema operacional, que deve lidar com 
+várias linhas de processamento.
+
+\subsection{Implementação com Divisão Dinâmica}
+
 \section{Discussões Gerais}
 \section{Conclusão}
 \end{document}
-
-
