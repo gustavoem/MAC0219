@@ -3,6 +3,8 @@
 import sys
 import re
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 import numpy as np
 
 def plot_timeXinput(results):
@@ -154,6 +156,92 @@ def plot_compare_timeXthread(results, results2):
     # ax.yaxis.grid(True)
     plt.show()
 
+def plot_all_timeXthread(results):
+    reg = "full"
+    NUM_COLORS = 10
+    fig = plt.figure(figsize=(14, 8))
+    cm = plt.get_cmap('gist_rainbow')
+    ax = fig.add_subplot(111)
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+
+    xlist = []
+    ylists = [[] for _ in range(4, 14)]
+    ylists2 = [[] for _ in range(4, 14)]
+    ylists3 = [[] for _ in range(4, 14)]
+    ylists4 = [[] for _ in range(4, 14)]
+    for i in range(0, 6):
+        nThreads = 2 ** i
+        xlist.append(nThreads)
+        for j in range (4, 14):
+            size = 2 ** j
+            ylists[j - 4].append(results[nThreads][size]["full"]["avg"])
+            ylists2[j - 4].append(results[nThreads][size]["elephant"]["avg"])
+            ylists3[j - 4].append(results[nThreads][size]["seahorse"]["avg"])
+            ylists4[j - 4].append(results[nThreads][size]["spiral"]["avg"])
+
+    legend_handles = []
+    legends = []
+    bola_handle = ''
+    for i, ylist in enumerate(ylists):
+        size = 2 ** (i + 4)
+        bola_handle, = plt.plot(xlist, ylist, 'o', mfc='none', label='Full')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+        # legend_handles.append(sizex)
+        # legends.append(str(size) + " px")
+
+    square_handle = ''
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+    for i, ylist in enumerate(ylists2):
+        size = 2 ** (i + 4)
+        square_handle, = plt.plot(xlist, ylist, 's', mfc='none', label='Elephant')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+
+    triangle_handle = ''
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+    for i, ylist in enumerate(ylists3):
+        size = 2 ** (i + 4)
+        triangle_handle, = plt.plot(xlist, ylist, '^', mfc='none', label='Seahorse')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+
+    x_handle = ''
+    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+    for i, ylist in enumerate(ylists4):
+        size = 2 ** (i + 4)
+        x_handle, = plt.plot(xlist, ylist, 'x', mfc='none', label='spiral')
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)        
+
+    legends = []
+    for ind, c in enumerate([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]):
+        lbl = str(2 ** (ind + 4)) + " px"
+        legends.append(mpatches.Patch(color=c, label=lbl))
+    my_bola = mlines.Line2D([], [], color='blue', marker='*',
+                          markersize=15, label='Blue stars')
+    my_bola.update_from(bola_handle)
+    my_bola.set_color('black')
+    my_square = mlines.Line2D([], [], color='blue', marker='*',
+                          markersize=15, label='Blue stars')
+    my_square.update_from(square_handle)
+    my_square.set_color('black')
+    my_triangle = mlines.Line2D([], [], color='blue', marker='*',
+                          markersize=15, label='Blue stars')
+    my_triangle.update_from(triangle_handle)
+    my_triangle.set_color('black')
+    my_x = mlines.Line2D([], [], color='blue', marker='*',
+                          markersize=15, label='Blue stars')
+    my_x.update_from(x_handle)
+    my_x.set_color('black')
+    legends += [my_bola, my_square, my_triangle, my_x]
+    plt.legend(handles=legends)
+
+
+
+
+    plt.title('Time of execution X number of threads')
+    plt.ylabel('Time (s)')
+    plt.xlabel('Number of threads')
+    # ax.yaxis.grid(True)
+    plt.show()
+
 if __name__ == '__main__':
     results_dir = sys.argv[1]
     if results_dir[-1] != '/':
@@ -173,5 +261,6 @@ if __name__ == '__main__':
         plot_compare_timeXthread(results, results2)
 
     else:
-        plot_timeXthread(results)
-        plot_timeXinput(results)
+        # plot_timeXthread(results)
+        # plot_timeXinput(results)
+        plot_all_timeXthread(results)
