@@ -7,6 +7,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{graphicx}    % needed for include graphics
+\usepackage{subfigure}   % add subfigures
 \usepackage{indentfirst}
 \usepackage{float}       % needed for [H] figure placement option
 \usepackage{setspace}    % needed for doublespacing
@@ -18,7 +19,7 @@
 \newcommand{\lowtext}[1]{$_{\text{#1}}$}
 
 % Adds ./img/ to the path of figures
-\graphicspath{./img/}
+\graphicspath{{./img/}}
 
 \title{Relatório EP1 - MAC0219}
 \author{Bruno Sesso, Gustavo Estrela de Matos, Lucas Sung Jun Hong}
@@ -100,6 +101,20 @@ deixando menor a diferença de tempo necessário para se calcular cada
 parte. Entretanto, criar um número excessivo de threads pode dar mais
 trabalho ao escalonador do sistema operacional, que deve lidar com 
 várias linhas de processamento.
+
+\begin{figure}[!ht]
+    \centering
+        \subfigure{
+            \includegraphics{time_x_thread_numpth_sta_n2048.png}
+        }
+        %\subfigure{
+            %\includegraphics{time_x_thread_numpth_sta_n2048.png}
+        %}
+    \caption{TODO: Explicação}
+    \label{fig:higher_thread_num} 
+\end{figure}
+
+
 
 \subsection{Implementação com Divisão Dinâmica}
 
