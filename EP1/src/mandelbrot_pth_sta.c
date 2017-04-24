@@ -3,7 +3,6 @@
 #include <math.h>
 #include <pthread.h>
 
-
 /* Global Variables */
 double c_x_min;
 double c_x_max;
@@ -20,6 +19,9 @@ int image_buffer_size;
 /* pthread variables*/
 int num_threads = 4;
 pthread_t * callThd;
+
+
+
 
 
 

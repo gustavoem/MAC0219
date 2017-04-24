@@ -3,7 +3,6 @@
 #include <math.h>
 #include <pthread.h>
 
-
 /* Global Variables */
 double c_x_min;
 double c_x_max;
