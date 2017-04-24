@@ -104,13 +104,23 @@ várias linhas de processamento.
 
 \begin{figure}[!ht]
     \centering
-        \subfigure{
-            \includegraphics{time_x_thread_numpth_sta_n2048.png}
+    \begin{tabular}{c c}
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{time_x_thread_numpth_sta_n512.png}}
+            \label {fig:higher_thread_num:A}
         }
-        %\subfigure{
-            %\includegraphics{time_x_thread_numpth_sta_n2048.png}
-        %}
-    \caption{TODO: Explicação}
+        &
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{time_x_thread_numpth_sta_n2048.png}}
+            \label {fig:higher_thread_num:B}
+        }
+
+    \end{tabular}
+    \caption{É possível notar em ambas figuras que o aumento do número
+    de threads de fato diminui o tempo de execução do programa. No 
+    gráfico \ref{fig:higher_thread_num:A} fica evidente que o tempo 
+    gasto no controle das threads pode afetar o tempo de execução do
+    programa.}
     \label{fig:higher_thread_num} 
 \end{figure}
 
