@@ -124,9 +124,45 @@ várias linhas de processamento.
     \label{fig:higher_thread_num} 
 \end{figure}
 
-
-
 \subsection{Implementação com Divisão Dinâmica}
+A implementação dinâmica do nosso programa também divide o trabalho em
+$n$ pedaços, entretanto agora $n$ não é mais, necessariamente o número
+de threads disponíveis. Após dividir o trabalho em pedaços, o nosso 
+programa agora é capaz de, dinâmicamente, delegar blocos de pixels a 
+cada thread. Portanto, agora diminuimos o problema de threads ociosas,
+porque podemos dividir mais os blocos de trabalho e sempre que uma 
+thread termina um bloco, podemos dar a ela um novo bloco para computar 
+(desde que ainda haja trabalho a ser feito).
+
+Veja abaixo um pseudo-código para esse programa:
+\begin{algorithmic}[1]
+\Function{ComputeMandelbrot}{}
+    \State $S \gets $ lista de nacos de todos os pixels
+    \While{$S \neq \emptyset$}
+        \State $chunk \gets S$.popChunk ()
+        \State Espere {\em alguma} thread estar livre
+        \ForAll{Threat $T$}
+            \If{$T$ está livre}
+                \State $T$.compute ($chunk$)
+            \EndIf
+        \EndFor
+    \EndWhile 
+    \EndFunction
+\end{algorithmic}
+
+
+A implementação desse código é um pouco mais complicada, porque depende,
+além da estrutura de dados já usada na implementação estática, de um 
+maior controle de concorrência. O conceito principal utilizado é o de 
+{\em condition variable}, que nos permite colocar a linha principal de
+execução em espera, enquanto as threads calculam os pixels, para voltar
+a ser executada quando alguma thread estiver livre.
+
+Diminuido o problema de threads ociosas, é esperado que essa 
+implementação seja mais rápida do que a anterior, porém, é necessário 
+notar que o nosso código ficou mais complexo, e exige mais recursos
+computacionais para o controle das threads.
+
 
 \section{Discussões Gerais}
 \section{Conclusão}

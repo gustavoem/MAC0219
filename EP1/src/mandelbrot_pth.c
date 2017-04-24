@@ -18,6 +18,7 @@ int i_y_max;
 int image_buffer_size;
 /* pthread variables*/
 int num_threads = 4;
+int chunk_size = -1;
 pthread_t * callThd;
 int * free_thread;
 pthread_mutex_t cv_mutex;
@@ -110,6 +111,9 @@ void init (int argc, char *argv[]) {
         pixel_height      = (c_y_max - c_y_min) / i_y_max;
         if (argc > 6)
             sscanf (argv[6], "%d", &num_threads);
+        if (argc > 7)
+            sscanf (argv[7], "%d", &chunk_size);
+        /*printf ("Chunk size: %d\n", chunk_size);*/
     };
 };
 
@@ -147,9 +151,14 @@ void write_to_file () {
 
 
 void compute_mandelbrot () {
-    int i, j, nchunks, chunk_size = i_x_max;
+    int i, j, nchunks;
     void *status;
+    if (chunk_size == -1) 
+        chunk_size = 10 * i_x_max;
+    if (chunk_size > i_x_max * i_y_max)
+        chunk_size = i_x_max;
     nchunks = (i_y_max * i_x_max) / chunk_size;
+    /*printf ("nchunks = %d\n", nchunks);*/
     MANDELBROT_CHUNK *chunks = create_chunks (nchunks);
     free_thread = malloc (num_threads * sizeof (int));
     for (i = 0; i < num_threads; i++) 
