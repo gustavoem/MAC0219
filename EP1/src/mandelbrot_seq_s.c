@@ -9,12 +9,14 @@ double c_y_min;
 double c_y_max;
 double pixel_width;
 double pixel_height;
+
 int iteration_max = 200;
-int image_size;
-unsigned char **image_buffer[11500][3];
+
 int i_x_max;
 int i_y_max;
+int image_size;
 int image_buffer_size;
+unsigned char image_buffer[132250000][3];
 
 int gradient_size = 16;
 int colors[17][3] = {
@@ -39,9 +41,10 @@ int colors[17][3] = {
 
 
 /* Function Prototypes */
-void init (int argc, char *argv[]);
-void compute_mandelbrot ();
-int escape_iteration (double c_x, double c_y);
+void    init (int argc, char *argv[]);
+void    compute_mandelbrot ();
+int     escape_iteration (double c_x, double c_y);
+void    update_rgb_buffer (int iteration, int x, int y);
 
 void init (int argc, char *argv[]) {
     if (argc < 6) {
@@ -89,21 +92,7 @@ void compute_mandelbrot () {
         for (i_x = 0; i_x < i_x_max; i_x++) {
             c_x         = c_x_min + i_x * pixel_width;
             iteration = escape_iteration (c_x, c_y);
-
-            if (iteration == iteration_max) {
-                color = 16;
-                //(*int)image_buffer[(i_y_max * i_y) + i_x][0] = color;
-                image_buffer[(i_y_max * i_y) + i_x][0] = color;
-                //printf("%s", image_buffer[(i_y_max * i_y) + i_x][0]);
-                image_buffer[(i_y_max * i_y) + i_x][1] = color;
-                image_buffer[(i_y_max * i_y) + i_x][2] = color;
-            }
-            else {
-                color = iteration % gradient_size;
-                image_buffer[(i_y_max * i_y) + i_x][0] = colors[color][0];
-                image_buffer[(i_y_max * i_y) + i_x][1] = colors[color][1];
-                image_buffer[(i_y_max * i_y) + i_x][2] = colors[color][2];
-            };
+            update_rgb_buffer (iteration, i_x, i_y);
         };
     };
 };
@@ -127,7 +116,6 @@ int escape_iteration (double c_x, double c_y) {
     };
     return iteration;
 }
-
 
 
 int main (int argc, char *argv[]) {
