@@ -20,25 +20,30 @@ def plot_timeXinput(results):
 
     xlist = []
     ylists = [[] for _ in range(0, 6)]
+    yerr = [[] for _ in range(0, 6)]
     for i in range(4, 14):
         size = 2 ** i
         xlist.append(size)
         for j in range(0, 6):
             nThreads = 2 ** j
             ylists[j].append(results[nThreads][size][reg]["avg"])
+            yerr[j].append(results[nThreads][size][reg]["std_dev"])
 
     legend_handles = []
     legends = []
     for i, ylist in enumerate(ylists):
         nThreads = 2 ** i
-        threads, = plt.plot(xlist, ylist, 'o', mfc='none')
+        threads, = plt.plot(xlist, ylist, 'o', mfc='none', mew=2)
         plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
         legend_handles.append(threads)
         legends.append(str(nThreads) + " Threads")
     ax.legend(legend_handles, legends)
 
+    for i, err in enumerate(yerr):
+        plt.errorbar(xlist, ylists[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
+    ax.legend(legend_handles, legends)
 
-    plt.title('Time of execution X input size')
+    plt.title('Time of execution X input size (OpenMP)')
     plt.ylabel('Time (s)')
     plt.xlabel('Input size')
     # ax.yaxis.grid(True)
@@ -267,6 +272,6 @@ if __name__ == '__main__':
         plot_compare_timeXthread(results, results2)
 
     else:
-        plot_timeXthread(results)
-        # plot_timeXinput(results)
+        # plot_timeXthread(results)
+        plot_timeXinput(results)
         # plot_all_timeXthread(results)
