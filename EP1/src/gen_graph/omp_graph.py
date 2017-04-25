@@ -8,9 +8,9 @@ import matplotlib.lines as mlines
 import numpy as np
 
 def plot_timeXinput(results):
-    reg = "seahorse"
+    reg = "spiral"
     NUM_COLORS = 12
-    fig = plt.figure(figsize=(14, 8))
+    fig = plt.figure(figsize=(14, 8), dpi = 200)
     cm = plt.get_cmap('gist_rainbow')
     ax = fig.add_subplot(111)
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
@@ -43,7 +43,7 @@ def plot_timeXinput(results):
         plt.errorbar(xlist, ylists[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
     ax.legend(legend_handles, legends)
 
-    plt.title('Time of execution X input size (OpenMP)')
+    plt.title('Time of execution X input size (OpenMP - Região Full)')
     plt.ylabel('Time (s)')
     plt.xlabel('Input size')
     # ax.yaxis.grid(True)
@@ -52,14 +52,16 @@ def plot_timeXinput(results):
     plt.xticks(xlist, my_xticks)
     # plt.yscale('log')
 
-    plt.show()
+    # plt.show()
+    # plt.figure(figsize=(14, 8), dpi=200)
+    fig.savefig("time_input_" + reg + ".png")
 
 
 # Plot data
 def plot_timeXthread(results):
-    reg = "full"
+    reg = "spiral"
     NUM_COLORS = 25
-    fig = plt.figure(figsize=(14, 8))
+    fig = plt.figure(figsize=(14, 8), dpi = 200)
     cm = plt.get_cmap('gist_rainbow')
     ax = fig.add_subplot(111)
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
@@ -88,7 +90,7 @@ def plot_timeXthread(results):
         plt.errorbar(xlist, ylists[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
     ax.legend(legend_handles, legends)
 
-    plt.title('Time of execution X number of threads (OpenMP)')
+    plt.title('Time of execution X number of threads (OpenMP - Região Full)')
     plt.ylabel('Time (s)')
     plt.xlabel('Number of threads')
     # ax.yaxis.grid(True)
@@ -96,7 +98,9 @@ def plot_timeXthread(results):
     my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$']
     plt.xticks(xlist, my_xticks)
 
-    plt.show()
+    # plt.show()
+    # plt.figure(figsize=(14, 8), dpi=200)
+    fig.savefig("time_threads_" + reg + ".png")
 
 def get_results(results_dir):
     if results_dir[-1] != '/':
@@ -181,6 +185,10 @@ def plot_all_timeXthread(results):
     ylists2 = [[] for _ in range(4, 14)]
     ylists3 = [[] for _ in range(4, 14)]
     ylists4 = [[] for _ in range(4, 14)]
+    yerr = [[] for _ in range(4, 14)]
+    yerr2 = [[] for _ in range(4, 14)]
+    yerr3 = [[] for _ in range(4, 14)]
+    yerr4 = [[] for _ in range(4, 14)]
     for i in range(0, 6):
         nThreads = 2 ** i
         xlist.append(nThreads)
@@ -190,6 +198,10 @@ def plot_all_timeXthread(results):
             ylists2[j - 4].append(results[nThreads][size]["elephant"]["avg"])
             ylists3[j - 4].append(results[nThreads][size]["seahorse"]["avg"])
             ylists4[j - 4].append(results[nThreads][size]["spiral"]["avg"])
+            yerr[j - 4].append(results[nThreads][size]["full"]["std_dev"])
+            yerr2[j - 4].append(results[nThreads][size]["elephant"]["std_dev"])
+            yerr3[j - 4].append(results[nThreads][size]["seahorse"]["std_dev"])
+            yerr4[j - 4].append(results[nThreads][size]["spiral"]["std_dev"])
 
     legend_handles = []
     legends = []
@@ -201,12 +213,22 @@ def plot_all_timeXthread(results):
         # legend_handles.append(sizex)
         # legends.append(str(size) + " px")
 
+    for i, err in enumerate(yerr):
+        plt.errorbar(xlist, ylists[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
+    ax.legend(legend_handles, legends)
+
+
     square_handle = ''
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
     for i, ylist in enumerate(ylists2):
         size = 2 ** (i + 4)
         square_handle, = plt.plot(xlist, ylist, 's', mfc='none', label='Elephant')
         plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+
+    for i, err in enumerate(yerr2):
+        plt.errorbar(xlist, ylists2[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
+    ax.legend(legend_handles, legends)
+
 
     triangle_handle = ''
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
@@ -215,12 +237,24 @@ def plot_all_timeXthread(results):
         triangle_handle, = plt.plot(xlist, ylist, '^', mfc='none', label='Seahorse')
         plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
 
+    for i, err in enumerate(yerr3):
+        plt.errorbar(xlist, ylists3[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
+    ax.legend(legend_handles, legends)
+
+
+
     x_handle = ''
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
     for i, ylist in enumerate(ylists4):
         size = 2 ** (i + 4)
         x_handle, = plt.plot(xlist, ylist, 'x', mfc='none', label='spiral')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)        
+        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)      
+
+
+    for i, err in enumerate(yerr4):
+        plt.errorbar(xlist, ylists4[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
+    ax.legend(legend_handles, legends)
+  
 
     legends = []
     for ind, c in enumerate([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]):
@@ -248,9 +282,13 @@ def plot_all_timeXthread(results):
 
 
 
-    plt.title('Time of execution X number of threads')
+    plt.title('Time of execution X number of threads (OpenMP - All regions)')
     plt.ylabel('Time (s)')
     plt.xlabel('Number of threads')
+
+    my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$']
+    plt.xticks(xlist, my_xticks)
+
     # ax.yaxis.grid(True)
     plt.show()
 
@@ -273,5 +311,5 @@ if __name__ == '__main__':
 
     else:
         # plot_timeXthread(results)
-        plot_timeXinput(results)
-        # plot_all_timeXthread(results)
+        # plot_timeXinput(results)
+        plot_all_timeXthread(results)
