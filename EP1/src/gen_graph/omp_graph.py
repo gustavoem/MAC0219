@@ -60,30 +60,37 @@ def plot_timeXthread(results):
     ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
     xlist = []
     ylists = [[] for _ in range(4, 14)]
+    yerr = [[] for _ in range(4, 14)]
 
-    ylist = []
-    ylist2 = []
     for i in range(0, 6):
         nThreads = 2 ** i
         xlist.append(nThreads)
         for j in range (4, 14):
             size = 2 ** j
             ylists[j - 4].append(results[nThreads][size][reg]["avg"])
+            yerr[j - 4].append(results[nThreads][size][reg]["std_dev"])
 
     legend_handles = []
     legends = []
     for i, ylist in enumerate(ylists):
         size = 2 ** (i + 4)
-        sizex, = plt.plot(xlist, ylist, 'o', mfc='none')
+        sizex, = plt.plot(xlist, ylist, 'o', mfc='none', mew=2)
         plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
         legend_handles.append(sizex)
         legends.append(str(size) + " px")
+
+    for i, err in enumerate(yerr):
+        plt.errorbar(xlist, ylists[i], yerr = err, color = '0.85', ecolor="black", linewidth=0.5)
     ax.legend(legend_handles, legends)
 
-    plt.title('Time of execution X number of threads')
+    plt.title('Time of execution X number of threads (OpenMP)')
     plt.ylabel('Time (s)')
     plt.xlabel('Number of threads')
     # ax.yaxis.grid(True)
+
+    my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$']
+    plt.xticks(xlist, my_xticks)
+
     plt.show()
 
 def get_results(results_dir):
@@ -256,11 +263,10 @@ if __name__ == '__main__':
         if results_dir2[-1] != '/':
             results_dir2+='/'
         results2 = get_results(results_dir2)
-        print(results2 == results)
 
         plot_compare_timeXthread(results, results2)
 
     else:
-        # plot_timeXthread(results)
+        plot_timeXthread(results)
         # plot_timeXinput(results)
-        plot_all_timeXthread(results)
+        # plot_all_timeXthread(results)
