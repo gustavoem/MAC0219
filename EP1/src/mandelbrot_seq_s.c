@@ -98,7 +98,6 @@ void update_rgb_buffer (int iteration, int x, int y) {
 void compute_mandelbrot () {
     int iteration;
     int i_x, i_y;
-    int color;
     double c_x, c_y;
 
     for (i_y = 0; i_y < i_y_max; i_y++) {
