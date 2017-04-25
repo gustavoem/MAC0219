@@ -78,6 +78,23 @@ void init (int argc, char *argv[]) {
 };
 
 
+void update_rgb_buffer (int iteration, int x, int y) {
+    int color;
+    if (iteration == iteration_max) {
+        color = 16;
+        image_buffer[(i_y_max * y) + x][0] = color;
+        image_buffer[(i_y_max * y) + x][1] = color;
+        image_buffer[(i_y_max * y) + x][2] = color;
+    }
+    else {
+        color = iteration % gradient_size;
+        image_buffer[(i_y_max * y) + x][0] = colors[color][0];
+        image_buffer[(i_y_max * y) + x][1] = colors[color][1];
+        image_buffer[(i_y_max * y) + x][2] = colors[color][2];
+    };
+};
+
+
 void compute_mandelbrot () {
     int iteration;
     int i_x, i_y;
