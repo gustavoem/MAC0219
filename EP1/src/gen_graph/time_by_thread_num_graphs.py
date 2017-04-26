@@ -48,7 +48,7 @@ handlers = [h[0] for h in handlers]
 ax.legend(handlers, labels, loc = 'upper left', numpoints = 1)
 plt.xlabel ("Quantidade de threads")
 plt.ylabel ("Tempo medio de execucao")
-plt.title ("Comparacao de tempo gasto na região " + input_name.title () 
+plt.title ("Comparacao de tempo gasto na regiao " + input_name.title () 
         + " com $" + input_size + "^2$ pixels" )
 filename = 'time_x_thread_num' + '-'.join (programs)
 plt.savefig(filename + '.png')

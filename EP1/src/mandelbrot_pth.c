@@ -154,8 +154,6 @@ void compute_mandelbrot () {
     int i, j, nchunks;
     void *status;
     if (chunk_size == -1) 
-        chunk_size = 10 * i_x_max;
-    if (chunk_size > i_x_max * i_y_max)
         chunk_size = i_x_max;
     nchunks = (i_y_max * i_x_max) / chunk_size;
     /*printf ("nchunks = %d\n", nchunks);*/
@@ -195,7 +193,8 @@ void compute_mandelbrot () {
 
 void *compute_mandelbrot_chunk (void *args) {
     MANDELBROT_CHUNK *ck;
-    int i_y, i_x, i, iteration;
+    int i_y, i_x, i;
+    /*int iteration;*/
     int chunk_start, chunk_end, tid;
     double c_x, c_y;
     ck = (MANDELBROT_CHUNK *) args;
@@ -210,7 +209,8 @@ void *compute_mandelbrot_chunk (void *args) {
         if (fabs (c_y) < pixel_height / 2) {
             c_y = 0.0;
         };
-        iteration = escape_iteration (c_x, c_y);
+        /*iteration = */
+        escape_iteration (c_x, c_y);
         /*update_rgb_buffer (iteration, i_x, i_y);*/
     }
     pthread_mutex_lock (&cv_mutex);

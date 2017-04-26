@@ -35,7 +35,7 @@ for program in programs:
             results[program][2].append (std_dev)
         match = re.search ('\s+Performance\scounter\sstats\sfor\s+\'\.\/mandelbrot_.+\s(\d+)\s+(\d+)\s+(\d+)\'.*(\d+)\sruns.*', line)
         if match:
-            chunk_size = int (match.group (3)) / int (input_size)
+            chunk_size = float (match.group (3)) / int (input_size)
             results[program][0].append (chunk_size)
 
 # Plot data
@@ -48,7 +48,7 @@ handlers = [h[0] for h in handlers]
 ax.legend(handlers, labels, loc = 'upper left', numpoints = 1)
 plt.xlabel ("Tamanho do chunk (x" + input_size + ")")
 plt.ylabel ("Tempo medio de execucao")
-plt.title ("Comparacao de tempo gasto na região " + input_name.title () 
+plt.title ("Comparacao de tempo gasto na regiao " + input_name.title () 
         + " com $" + input_size + "^2$ pixels" )
 filename = 'time_x_chunk_size' + '-'.join (programs)
 plt.savefig(filename + '.png')
