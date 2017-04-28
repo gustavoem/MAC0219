@@ -7,104 +7,28 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import numpy as np
 
-def plot_timeXinput(results):
-    reg = "seahorse"
-    NUM_COLORS = 12
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    # ax.set_xscale('log', basex=2)
-    # ax.set_yscale('log', basey=4)
+######## Parsers ##########
 
-
-    xlist = []
-    ylists = [[] for _ in range(0, 6)]
-    for i in range(4, 14):
-        size = 2 ** i
-        xlist.append(size)
-        for j in range(0, 6):
-            nThreads = 2 ** j
-            ylists[j].append(results[nThreads][size][reg]["avg"])
-
-    legend_handles = []
-    legends = []
-    for i, ylist in enumerate(ylists):
-        nThreads = 2 ** i
-        threads, = plt.plot(xlist, ylist, 'o', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        legend_handles.append(threads)
-        legends.append(str(nThreads) + " Threads")
-    ax.legend(legend_handles, legends)
-
-
-    plt.title('Time of execution X input size')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Input size')
-    # ax.yaxis.grid(True)
-
-    my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
-    plt.xticks(xlist, my_xticks)
-    # plt.yscale('log')
-
-    plt.show()
-
-
-# Plot data
-def plot_timeXthread(results):
-    reg = "full"
-    NUM_COLORS = 25
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    xlist = []
-    ylists = [[] for _ in range(4, 14)]
-
-    ylist = []
-    ylist2 = []
-    for i in range(0, 6):
-        nThreads = 2 ** i
-        xlist.append(nThreads)
-        for j in range (4, 14):
-            size = 2 ** j
-            ylists[j - 4].append(results[nThreads][size][reg]["avg"])
-
-    legend_handles = []
-    legends = []
-    for i, ylist in enumerate(ylists):
-        size = 2 ** (i + 4)
-        sizex, = plt.plot(xlist, ylist, 'o', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        legend_handles.append(sizex)
-        legends.append(str(size) + " px")
-    ax.legend(legend_handles, legends)
-
-    plt.title('Time of execution X number of threads')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Number of threads')
-    # ax.yaxis.grid(True)
-    plt.show()
-
-def get_results(results_dir):
+def parse_results(results_dir, threads_range, size_range):
     if results_dir[-1] != '/':
         results_dir+='/'
 
-    inputs = ["full", "seahorse", "elephant", "spiral"]
+    regions = ["full", "seahorse", "elephant", "spiral"]
     results = {}
-    for i in range(0, 6):
+    for i in threads_range:
         nThreads = 2 ** i
         results[nThreads] = {}
 
-        for j in range(4, 14):
+        for j in size_range:
             size = 2 ** j
             results[nThreads][size] = {}
             file_name = ""
 
-            for region in inputs:
+            for region in regions:
                 results[nThreads][size][region] = {}
                 file_name = region + "_" + str(size) + "px_" + str(nThreads) + "threads.log"
                 result_file = open (results_dir + file_name)
+
                 for line in result_file:
                     match = re.search ('(\d+(\.|,)\d+)\s+seconds\s+time\s+elapsed\s+\(\s+\+\-\s+(\d+(\.|,)\d+)%\s+\)', line)
                     if match:
@@ -112,318 +36,297 @@ def get_results(results_dir):
                         std_dev = (float (match.group (3)) / 100) * avg
                         results[nThreads][size][region]["avg"] = avg
                         results[nThreads][size][region]["std_dev"] = std_dev
-
     return results
 
-def plot_compare_timeXthread(results, results2):
-    reg = "full"
-    NUM_COLORS = 10
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+def parse_parallel_results(results_dir):
+    return parse_results(results_dir, range(0, 6), range(4, 14))
 
-    xlist = []
-    ylists = [[] for _ in range(4, 14)]
-    ylists2 = [[] for _ in range(4, 14)]
-    for i in range(0, 6):
-        nThreads = 2 ** i
-        xlist.append(nThreads)
-        for j in range (4, 14):
-            size = 2 ** j
-            ylists[j - 4].append(results[nThreads][size][reg]["avg"])
-            ylists2[j - 4].append(results2[nThreads][size][reg]["avg"])
+def parse_sequential_results(results_dir):
+    return parse_results(results_dir, range(0, 1), range(4, 14))                     
 
-    legend_handles = []
-    legends = []
-    for i, ylist in enumerate(ylists):
-        size = 2 ** (i + 4)
-        sizex, = plt.plot(xlist, ylist, 'o', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        legend_handles.append(sizex)
-        legends.append(str(size) + " px")
+############## Plotters #################
 
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    for i, ylist in enumerate(ylists2):
-        size = 2 ** (i + 4)
-        plt.plot(xlist, ylist, 's', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-    ax.legend(legend_handles, legends)
+class Plotter:
+    def __init__(self, implementation = "OpenMP", comment = ""):
+        self.fig = plt.figure(figsize=(14, 8))
+        self.ax = self.fig.add_subplot(111)
+        self.implementation = implementation
+        self.comment = comment
+        self.reset_colors(12)
+        self.init_data_vectors()
+    
+    def reset_colors(self, nColors):
+        self.cm = plt.get_cmap('gist_rainbow')
+        self.ax.set_color_cycle([self.cm(1. * i / nColors) for i in range(nColors)])
 
-    plt.title('Time of execution X number of threads')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Number of threads')
-    # ax.yaxis.grid(True)
-    plt.show()
+    def init_data_vectors(self, threads_range=range(0, 6), size_range=range(4, 14)):
+        self.threads = [2 ** i for i in threads_range]
+        self.sizes = [2 ** i for i in size_range]
+        self.regions = ["full", "seahorse", "elephant", "spiral"]
 
-def plot_seq(results_dir):
-    if results_dir[-1] != '/':
-        results_dir+='/'
+    def show(self):
+        plt.show()
 
-    inputs = ["full", "seahorse", "elephant", "spiral"]
-    results = {}
-    for i in range(0, 1):
-        nThreads = 2 ** i
-        results[nThreads] = {}
+    def get_timeXsize_lists(self, results, reg):
+        ylists = {nThreads: {"avg": [], "std_dev": []} for nThreads in self.threads}
 
-        for j in range(4, 14):
-            size = 2 ** j
-            results[nThreads][size] = {}
-            file_name = ""
+        for size in self.sizes:
+            for nThreads in self.threads:
+                ylists[nThreads]["avg"].append(results[nThreads][size][reg]["avg"])
+                ylists[nThreads]["std_dev"].append(results[nThreads][size][reg]["std_dev"])
 
-            for region in inputs:
-                results[nThreads][size][region] = {}
-                file_name = region + "_" + str(size) + "px_" + str(nThreads) + "threads.log"
-                result_file = open (results_dir + file_name)
-                for line in result_file:
-                    match = re.search ('(\d+(\.|,)\d+)\s+seconds\s+time\s+elapsed\s+\(\s+\+\-\s+(\d+(\.|,)\d+)%\s+\)', line)
-                    if match:
-                        avg = float (match.group (1))
-                        std_dev = (float (match.group (3)) / 100) * avg
-                        results[nThreads][size][region]["avg"] = avg
-                        results[nThreads][size][region]["std_dev"] = std_dev
+        return ylists
 
-    reg = "seahorse"
-    NUM_COLORS = 12
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    # ax.set_xscale('log', basex=2)
-    # ax.set_yscale('log', basey=4)
+    def get_timeXthread_lists(self, results, reg):
+        ylists = {size: {"avg": [], "std_dev": []} for size in self.sizes}
+
+        for nThreads in self.threads:
+            for size in self.sizes:
+                ylists[size]["avg"].append(results[nThreads][size][reg]["avg"])
+                ylists[size]["std_dev"].append(results[nThreads][size][reg]["std_dev"])
+
+        return ylists
+
+    def plot(self, xlist, ylist, marker="o", label=""):
+        legend, = plt.plot(xlist, ylist["avg"], marker, mew=3, mfc='none', label=label)
+        plt.plot(xlist, ylist["avg"], color='0.85', linewidth=0.5)
+        self.ax.errorbar(xlist, ylist["avg"], yerr=ylist["std_dev"], ecolor='black', color='0.85', linewidth=0.5)
+        return legend
+
+    ##### Plot methods #####
+
+    def timeXsize(self, results, reg):
+        self.reset_colors(12)
+
+        ylists = self.get_timeXsize_lists(results, reg)
+
+        legend_handles = []
+        legends = []
+
+        print(ylists)
+        for nThreads, ylist in ylists.items():
+            th_legend = self.plot(self.sizes, ylist)
+
+            legend_handles.append(th_legend)
+            legends.append(str(nThreads) + " Threads")
+
+        self.ax.legend(legend_handles, legends)
 
 
-    xlist = []
-    ylists = [[] for _ in range(0, 1)]
-    for i in range(4, 14):
-        size = 2 ** i
-        xlist.append(size)
-        for j in range(0, 1):
-            nThreads = 2 ** j
-            ylists[j].append(results[nThreads][size][reg]["avg"])
+        plt.title('Time of execution X input size (' + self.implementation + " - " + reg + self.comment + ")")
+        plt.ylabel('Time (s)')
+        plt.xlabel('Input size')
 
-    legend_handles = []
-    legends = []
-    for i, ylist in enumerate(ylists):
-        nThreads = 2 ** i
-        threads, = plt.plot(xlist, ylist, 'o', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        legend_handles.append(threads)
-        legends.append(str(nThreads) + " Threads")
-    ax.legend(legend_handles, legends)
+        my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
+        plt.xticks(self.sizes, my_xticks)
 
+        self.show()
 
-    plt.title('Time of execution X input size')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Input size')
-    # ax.yaxis.grid(True)
+    def timeXthread(self, results, reg):
+        self.reset_colors(20)
 
-    my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
-    plt.xticks(xlist, my_xticks)
-    # plt.yscale('log')
+        ylists = self.get_timeXthread_lists(results, reg)
 
-    plt.show()
+        legend_handles = []
+        legends = []
 
-def plot_compare_seq(results_dir, results_dir2):
-    if results_dir[-1] != '/':
-        results_dir+='/'
-    if results_dir2[-1] != '/':
-        results_dir2+='/'        
+        for size, ylist in ylists.items():
+            size_legend = self.plot(self.threads, ylist)
 
-    inputs = ["full", "seahorse", "elephant", "spiral"]
-    results = {}
-    results2 = {}
-    for i in range(0, 1):
-        nThreads = 2 ** i
-        results[nThreads] = {}
-        results2[nThreads] = {}
+            legend_handles.append(size_legend)
+            legends.append(str(size) + " px")
 
-        for j in range(4, 14):
-            size = 2 ** j
-            results[nThreads][size] = {}
-            results2[nThreads][size] = {}
-            file_name = ""
+        self.ax.legend(legend_handles, legends)
 
-            for region in inputs:
-                results[nThreads][size][region] = {}
-                results2[nThreads][size][region] = {}
-                file_name = region + "_" + str(size) + "px_" + str(nThreads) + "threads.log"
-                result_file = open (results_dir + file_name)
-                for line in result_file:
-                    match = re.search ('(\d+(\.|,)\d+)\s+seconds\s+time\s+elapsed\s+\(\s+\+\-\s+(\d+(\.|,)\d+)%\s+\)', line)
-                    if match:
-                        avg = float (match.group (1))
-                        std_dev = (float (match.group (3)) / 100) * avg
-                        results[nThreads][size][region]["avg"] = avg
-                        results[nThreads][size][region]["std_dev"] = std_dev
+        plt.title('Time of execution X number of threads (' + self.implementation + " - " + reg + self.comment + ")")
+        plt.ylabel('Time (s)')
+        plt.xlabel('Number of threads')
 
-                file_name = region + "_" + str(size) + "px_" + str(nThreads) + "threads.log"
-                result_file = open (results_dir2 + file_name)
-                for line in result_file:
-                    match = re.search ('(\d+(\.|,)\d+)\s+seconds\s+time\s+elapsed\s+\(\s+\+\-\s+(\d+(\.|,)\d+)%\s+\)', line)
-                    if match:
-                        avg = float (match.group (1))
-                        std_dev = (float (match.group (3)) / 100) * avg
-                        results2[nThreads][size][region]["avg"] = avg
-                        results2[nThreads][size][region]["std_dev"] = std_dev                        
+        my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
+        plt.xticks(self.threads, my_xticks)
 
-    reg = "seahorse"
-    NUM_COLORS = 12
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    # ax.set_xscale('log', basex=2)
-    # ax.set_yscale('log', basey=4)
+        self.show()
+
+    def compare_timeXthread(self, results, results2, reg, nColors=10):
+        label1 = "group1"
+        label2 = "group2"
+
+        self.reset_colors(nColors)
+
+        ylists = self.get_timeXthread_lists(results, reg)
+        ylists2 = self.get_timeXthread_lists(results2, reg)
+
+        for size, ylist in ylists.items():
+            self.plot(self.threads, ylist)
+
+        self.reset_colors(nColors)
+        for size, ylist in ylists2.items():
+            self.plot(self.threads, ylist, marker="s")
 
 
-    xlist = []
-    ylists = [[] for _ in range(0, 1)]
-    ylists2 = [[] for _ in range(0, 1)]
-    for i in range(4, 14):
-        size = 2 ** i
-        xlist.append(size)
-        for j in range(0, 1):
-            nThreads = 2 ** j
-            ylists[j].append(results[nThreads][size][reg]["avg"])
-            ylists2[j].append(results[nThreads][size][reg]["avg"])
+        ### Legends ###
+        legends = []
+        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+            lbl = str(2 ** (ind + 4)) + " px"
+            legends.append(mpatches.Patch(color=c, label=lbl))
 
-    legend_handles = []
-    legends = []
-    print(results == results2)
-    for i, ylist in enumerate(ylists):
-        nThreads = 2 ** i
-        threads, = plt.plot(xlist, ylist, 'o', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        legend_handles.append(threads)
-        legends.append(str(nThreads) + " Threads")
-    for i, ylist in enumerate(ylists2):
-        nThreads = 2 ** i
-        threads, = plt.plot(xlist, ylist, 'go', mfc='none')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
+        legends.append(mlines.Line2D([], [], marker="o", linestyle="none", color="black", label=label1))
+        legends.append(mlines.Line2D([], [], marker="s", linestyle="none", color="black", label=label2))
 
-    ax.legend(legend_handles, legends)
+        plt.legend(handles = legends)
 
+        plt.title('Comparision of time of execution X number of threads(' + self.implementation + " - " + reg + self.comment + ")")
+        plt.ylabel('Time (s)')
+        plt.xlabel('Number of threads')
 
-    plt.title('Time of execution X input size')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Input size')
-    # ax.yaxis.grid(True)
+        my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
+        plt.xticks(self.threads, my_xticks)
 
-    my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
-    plt.xticks(xlist, my_xticks)
-    # plt.yscale('log')
+        self.show()
 
-    plt.show()
+    def compare_timeXsize(self, results, results2, reg, nColors=6):
+        label1 = "group1"
+        label2 = "group2"
 
-def plot_all_timeXthread(results):
-    reg = "full"
-    NUM_COLORS = 10
-    fig = plt.figure(figsize=(14, 8))
-    cm = plt.get_cmap('gist_rainbow')
-    ax = fig.add_subplot(111)
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
+        self.reset_colors(nColors)
 
-    xlist = []
-    ylists = [[] for _ in range(4, 14)]
-    ylists2 = [[] for _ in range(4, 14)]
-    ylists3 = [[] for _ in range(4, 14)]
-    ylists4 = [[] for _ in range(4, 14)]
-    for i in range(0, 6):
-        nThreads = 2 ** i
-        xlist.append(nThreads)
-        for j in range (4, 14):
-            size = 2 ** j
-            ylists[j - 4].append(results[nThreads][size]["full"]["avg"])
-            ylists2[j - 4].append(results[nThreads][size]["elephant"]["avg"])
-            ylists3[j - 4].append(results[nThreads][size]["seahorse"]["avg"])
-            ylists4[j - 4].append(results[nThreads][size]["spiral"]["avg"])
+        ylists = self.get_timeXsize_lists(results, reg)
+        ylists2 = self.get_timeXsize_lists(results2, reg)
 
-    legend_handles = []
-    legends = []
-    bola_handle = ''
-    for i, ylist in enumerate(ylists):
-        size = 2 ** (i + 4)
-        bola_handle, = plt.plot(xlist, ylist, 'o', mfc='none', label='Full')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-        # legend_handles.append(sizex)
-        # legends.append(str(size) + " px")
+        for size, ylist in ylists.items():
+            self.plot(self.sizes, ylist)
 
-    square_handle = ''
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    for i, ylist in enumerate(ylists2):
-        size = 2 ** (i + 4)
-        square_handle, = plt.plot(xlist, ylist, 's', mfc='none', label='Elephant')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-
-    triangle_handle = ''
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    for i, ylist in enumerate(ylists3):
-        size = 2 ** (i + 4)
-        triangle_handle, = plt.plot(xlist, ylist, '^', mfc='none', label='Seahorse')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)
-
-    x_handle = ''
-    ax.set_color_cycle([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)])
-    for i, ylist in enumerate(ylists4):
-        size = 2 ** (i + 4)
-        x_handle, = plt.plot(xlist, ylist, 'x', mfc='none', label='spiral')
-        plt.plot(xlist, ylist, color='0.85', linewidth=0.5)        
-
-    legends = []
-    for ind, c in enumerate([cm(1.*i/NUM_COLORS) for i in range(NUM_COLORS)]):
-        lbl = str(2 ** (ind + 4)) + " px"
-        legends.append(mpatches.Patch(color=c, label=lbl))
-    my_bola = mlines.Line2D([], [], color='blue', marker='*',
-                          markersize=15, label='Blue stars')
-    my_bola.update_from(bola_handle)
-    my_bola.set_color('black')
-    my_square = mlines.Line2D([], [], color='blue', marker='*',
-                          markersize=15, label='Blue stars')
-    my_square.update_from(square_handle)
-    my_square.set_color('black')
-    my_triangle = mlines.Line2D([], [], color='blue', marker='*',
-                          markersize=15, label='Blue stars')
-    my_triangle.update_from(triangle_handle)
-    my_triangle.set_color('black')
-    my_x = mlines.Line2D([], [], color='blue', marker='*',
-                          markersize=15, label='Blue stars')
-    my_x.update_from(x_handle)
-    my_x.set_color('black')
-    legends += [my_bola, my_square, my_triangle, my_x]
-    plt.legend(handles=legends)
+        self.reset_colors(nColors)
+        for size, ylist in ylists2.items():
+            self.plot(self.sizes, ylist, marker="s")
 
 
+        ### Legends ###
+        legends = []
+        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+            lbl = str(2 ** ind) + " Threads"
+            legends.append(mpatches.Patch(color=c, label=lbl))
+
+        legends.append(mlines.Line2D([], [], marker="o", linestyle="none", color="black", label=label1))
+        legends.append(mlines.Line2D([], [], marker="s", linestyle="none", color="black", label=label2))
+
+        plt.legend(handles = legends)
+
+        plt.title('Comparision of time of execution X size of input(' + self.implementation + " - " + reg + self.comment + ")")
+        plt.ylabel('Time (s)')
+        plt.xlabel('size of input')
 
 
-    plt.title('Time of execution X number of threads')
-    plt.ylabel('Time (s)')
-    plt.xlabel('Number of threads')
-    # ax.yaxis.grid(True)
-    plt.show()
+        my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
+        plt.xticks(self.sizes, my_xticks)
+
+        self.show()
+
+
+    def all_timeXthread(self, results, nColors=10):
+        self.reset_colors(nColors)
+
+        ylists = {}
+
+        for reg in self.regions:
+            ylists[reg] = self.get_timeXthread_lists(results, reg) 
+
+
+        legends = []
+        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+            lbl = str(2 ** (ind + 4)) + " px"
+            legends.append(mpatches.Patch(color=c, label=lbl))
+
+        markers = ["o", "^", "s", "x"]
+        for reg in self.regions:
+            marker = markers.pop(0)
+            legends.append(mlines.Line2D([], [], marker=marker, linestyle="none", color="black", label=reg))
+            self.reset_colors(10)
+            for size, ylist in ylists[reg].items():
+                self.plot(self.threads, ylist, marker=marker)
+
+        plt.legend(handles = legends)
+
+        plt.title('Time of execution X number of threads(' + self.implementation + " - All regions")
+        plt.ylabel('Time (s)')
+        plt.xlabel('Number of threads')
+
+        my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
+        plt.xticks(self.threads, my_xticks)
+
+        self.show()
+
+    def all_timeXsize(self, results, nColors=6):
+        self.reset_colors(nColors)
+
+        ylists = {}
+
+        for reg in self.regions:
+            ylists[reg] = self.get_timeXsize_lists(results, reg) 
+
+
+        legends = []
+        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+            lbl = str(2 ** ind) + " Threads"
+            legends.append(mpatches.Patch(color=c, label=lbl))
+
+        markers = ["o", "^", "s", "x"]
+        for reg in self.regions:
+            marker = markers.pop(0)
+            legends.append(mlines.Line2D([], [], marker=marker, linestyle="none", color="black", label=reg))
+            self.reset_colors(10)
+            for size, ylist in ylists[reg].items():
+                self.plot(self.sizes, ylist, marker=marker)
+
+        plt.legend(handles = legends)
+
+        plt.title('Time of execution X number of threads(' + self.implementation + " - All regions")
+        plt.ylabel('Time (s)')
+        plt.xlabel('Number of threads')
+
+        my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
+        plt.xticks(self.sizes, my_xticks)
+
+        self.show()
+
+    #### For sequential test plots ####
+    def seq_timeXsize(self, results, reg):
+        self.init_data_vectors(threads_range=range(1))
+        self.timeXsize(results, reg)
+
+
+    def compare_seq_timeXsize(self, results, results2, reg):
+        self.init_data_vectors(threads_range=range(1))
+        self.compare_timeXsize(results, results2, reg, nColors=1)
+
+    def all_seq_timeXsize(self, results, nColors=1):
+        self.init_data_vectors(threads_range=range(1))
+        self.all_timeXsize(results, nColors=1)
+        return
 
 if __name__ == '__main__':
-    results_dir = sys.argv[1]
-    if results_dir[-1] != '/':
-        results_dir+='/'
-    # plot_seq(results_dir)
-    # results = get_results(results_dir)
-        
+    argv = sys.argv
+    plot = Plotter()
 
-    results_dir2 = ""
-    results2 = {}
-    if (len(sys.argv) == 3):
-        results_dir2 = sys.argv[2]
-        plot_compare_seq(results_dir, results_dir2)
-        # if results_dir2[-1] != '/':
-        #     results_dir2+='/'
-        # results2 = get_results(results_dir2)
-        # print(results2 == results)
+    #### sequential ####
+    if (sys.argv[1] == '-s'):
+        results = parse_sequential_results(argv[2])
 
-        # plot_compare_timeXthread(results, results2)
+        if (len(sys.argv) == 4):
+            results2 = parse_sequential_results(argv[3])
+            plot.compare_seq_timeXsize(results, results2, "full")
+        else:
+            plot.all_seq_timeXsize(results, "full")
 
+    #### parallel ####
     else:
-        print("Ok")
-        # plot_timeXthread(results)
-        # plot_timeXinput(results)
-        # plot_all_timeXthread(results)
+        results = parse_parallel_results(sys.argv[1])
+
+        if (len(sys.argv) == 3):
+            results2 = parse_parallel_results(argv[2])
+            plot.compare_timeXthread(results, results2, "full")
+        else:
+            # plot.timeXthread(results, "full")
+            # plot.timeXsize(results, "full")
+            plot.all_timeXsize(results)
+
