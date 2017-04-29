@@ -58,6 +58,35 @@
 \pagebreak
 
 \section{Introdução}
+<<<<<<< HEAD
+Esse trabalho tem como objetivo implementar e analisar duas versões
+paralelas de um código sequencial que é capaz de calcular o conjunto de
+maldelbrot para diversas regiões do plano complexo. As duas versões do
+código foram implementadas utilizando as bibliotecas OpenMP e PThreads.
+
+Ao longo desse trabalho, iremos apresentar resultados de tempo de 
+execução das diferentes implementações e suas respectivas variações.
+Para isso, utilizamos a ferramenta {\em perf}, capaz de realizar 
+repetições de experimentos, apresentando resultados médios e com desvio
+padrão. Todos os resultados apresentados aqui foram feitos a partir de
+no mínimo 10 execuções do mesmo comando.
+=======
+<<<<<<< HEAD
+\newpage
+>>>>>>> 5c630943e627b170add9c5c09bd54df8dbc9748c
+
+
+    {\bf Por que é recomendado realizar mais de uma medição?} 
+        Porque os resultados observados dependem do estado da máquina
+        durante a execução do programa. Como testamos nossos programas
+        em máquinas com um sistema operacional, rodando diversos outros
+        programas ao mesmo tempo, é esperado que fatores como fila de
+        processos, paginação de memória, etc, interfira no tempo de 
+        execução do nosso programa. Portanto, se tiramos uma média
+        de várias execuções, somos capazes de dizer aproximadamente
+        o comportamento médio do programa.
+\newpage
+=======
 Esse trabalho tem como objetivo implementar e analisar duas versões
 paralelas de um código sequencial que é capaz de calcular o conjunto de
 maldelbrot para diversas regiões do plano complexo. As duas versões do
@@ -80,7 +109,8 @@ no mínimo 10 execuções do mesmo comando.
         execução do nosso programa. Portanto, se tiramos uma média
         de várias execuções, somos capazes de dizer aproximadamente
         o comportamento médio do programa.
-\newpage
+
+>>>>>>> 4653e6a4273fd2c776556871f4cc6a77b068e828
 \section{Código Sequencial}
 O cálculo do conjunto em código sequencial ocorre sem nenhuma paralelização, como se houvesse apenas uma thread na implementação.
 
@@ -188,6 +218,7 @@ a ser executada quando alguma thread estiver livre.
 Diminuido o problema de threads ociosas, é esperado que essa 
 implementação seja mais rápida do que a anterior, porém, é necessário 
 notar que o nosso código ficou mais complexo, e exige mais recursos
+<<<<<<< HEAD
 computacionais para o controle das threads. Esse tempo pode ser 
 prejudicial se o tamanho do chunk for pequeno, pois nessa situação
 há muitas trocas de chunks em cada thread, fazendo com que a maior parte
@@ -233,6 +264,11 @@ bem dividido.
 \end{figure}
 
 
+=======
+<<<<<<< HEAD
+computacionais para o controle das threads.
+\newpage
+>>>>>>> 5c630943e627b170add9c5c09bd54df8dbc9748c
 
 \newpage
 \section{Código em OpenMP}
@@ -286,8 +322,57 @@ Há um aumento de tempo de execução no cálculo do conjunto de regiões amplia
 \end{figure}
 
 \newpage
+<<<<<<< HEAD
 
 
 
+=======
+=======
+computacionais para o controle das threads. Esse tempo pode ser 
+prejudicial se o tamanho do chunk for pequeno, pois nessa situação
+há muitas trocas de chunks em cada thread, fazendo com que a maior parte
+do tempo de processamento seja gasto no controle das threads. Por outro
+lado, se temos chunks grandes o tempo gasto deve aumentar, porque caímos
+novamente no problema da implementação static, onde o trabalho não era
+bem dividido.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{tabular}{c c}
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{time_x_chunk_sizepth2048elephant.png}}
+            \label {fig:pthreads_chunk_size:A}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+        \includegraphics{time_x_chunk_sizepth2048seahorse_valley.png}
+        }
+            \label {fig:pthreads_chunk_size:B}
+        }
+        \\
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{time_x_chunk_sizepth2048triple_spiral.png}}
+            \label {fig:pthreads_chunk_size:C}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{time_x_chunk_sizepth2048full.png}}
+            \label {fig:pthreads_chunk_size:D}
+        }
+        
+    \end{tabular}
+    \caption{Verificamos empiricamente que definir o tamanho do chunk 
+        como  o tamanho do lado da imagem traz bons resultados para o
+        tempo de execução.}
+    \label{fig:pthreads_chunk_size} 
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=.5]{time_x_thread_numpth.png}
+\end{figure}
+
+>>>>>>> 4653e6a4273fd2c776556871f4cc6a77b068e828
+>>>>>>> 5c630943e627b170add9c5c09bd54df8dbc9748c
 \section{Conclusão}
 \end{document}

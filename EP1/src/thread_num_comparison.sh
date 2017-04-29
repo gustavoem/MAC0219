@@ -1,5 +1,5 @@
 MEASUREMENTS=10
-ITERATIONS=7
+ITERATIONS=5
 SIZE=2048
 INITIAL_THREAD_NUM=4
 
@@ -9,7 +9,7 @@ fi
 
 THREAD_NUM=$INITIAL_THREAD_NUM
 # list of programs to be tested
-NAMES=('mandelbrot_pth_sta')
+NAMES=('mandelbrot_pth')
 REGION=('full')
 
 make > /dev/null
@@ -25,4 +25,4 @@ for NAME in ${NAMES[@]}; do
     mv *.log results/$NAME
     rm output.ppm
 done
-python ./gen_graph/time_by_thread_num_graphs.py pth_sta full $SIZE
+python ./gen_graph/time_by_thread_num_graphs.py pth full $SIZE
