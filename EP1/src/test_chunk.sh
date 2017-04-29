@@ -13,7 +13,8 @@ nThreads=8
 
 echo "Starting tests"
 for i in $(seq 0 5); do
-	chunkSize=$(((2 ** $i) * $size))
+	mult=$((2 ** $i))
+	chunkSize=$(($mult * $size))
 	echo "chunkSize: $chunkSize"
 
 	file=$chunkSize"x2048_chunk.log"
