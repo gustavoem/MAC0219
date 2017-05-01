@@ -12,11 +12,14 @@ for line in f:
 
 print(len(dist))
 xlist = list(range(len(dist)))
-plt.figure(figsize=(14, 8))
+fig = plt.figure(figsize=(14, 8))
 plt.plot(xlist, dist, "ro", alpha=0.05, ms=2)
 
 
 plt.ylabel('Iterations')
 plt.xlabel('Image vector index')
 plt.title('Number of iteractions for image of ' + str(sqrt(len(dist))) + 'px')
-plt.show()
+# plt.show()
+file_name = file_path[:-3]
+file_name += "png"
+fig.savefig(file_name, dpi=200)
