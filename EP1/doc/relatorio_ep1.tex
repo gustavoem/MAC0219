@@ -83,17 +83,20 @@ no mínimo 10 execuções do mesmo comando.
         
 \newpage
 \section{Código Sequencial}
-O cálculo do conjunto em código sequencial ocorre sem nenhuma paralelização. 
-No trabalho, a versão com alocação de memória e operações de IO chama-se mandelbrot\_seq.c, 
-enquanto que a versão sem a alocação e sem IO chama-se mandelbrot\_seq\_s.c. 
-Definimos o tamanho do nosso image\_buffer[11500 x 11500 x 3][3] como tamanho máximo 
-para os nossos testes com imagens 11500px por 11500px.
+O cálculo do conjunto em código sequencial ocorre sem nenhuma 
+paralelização. No trabalho, a versão com alocação de memória e operações
+de IO chama-se mandelbrot\_seq.c, enquanto que a versão sem a alocação e
+sem IO chama-se mandelbrot\_seq\_s.c. 
+Definimos o tamanho do nosso image\_buffer[11500 x 11500 x 3][3] como 
+tamanho máximo para os nossos testes com imagens 11500px por 11500px.
 
-A seguir, temos a comparação de performance entre uma versão com alocação e IO, com outra sem alocação e sem IO:
+A seguir, temos a comparação de performance entre uma versão com 
+alocação e IO, com outra sem alocação e sem IO:
 
 (insert image)
 
-Possuindo uma matriz com o tamanho pré definido libera a necessidade de acessar a memória e fazer a alocação, dando nos resultados mais rápidos.
+Possuindo uma matriz com o tamanho pré definido libera a necessidade de 
+acessar a memória e fazer a alocação, dando nos resultados mais rápidos.
 
 \newpage
 
@@ -124,7 +127,7 @@ enquanto outras estão trabalhando. Como a quantidade de iterações
 necessárias para se calcular o valor de um pixel varia, é possível que
 um bloco de pixels seja calculado muito mais rápido do que outro; 
 imagine por exemplo um bloco onde cada ponto calculado diverge 
-rápidamente e outro bloco onde isso não acontece. Portanto, como a 
+rapidamente e outro bloco onde isso não acontece. Portanto, como a 
 divisão de trabalho é estática, é provável que uma thread termine seu
 trabalho muito antes de outra, o que significa em um uso não muito bom
 de recursos da máquina.
@@ -163,8 +166,8 @@ várias linhas de processamento.
 A implementação dinâmica do nosso programa também divide o trabalho em
 $n$ pedaços, entretanto agora $n$ não é mais, necessariamente o número
 de threads disponíveis. Após dividir o trabalho em pedaços, o nosso 
-programa agora é capaz de, dinâmicamente, delegar blocos de pixels a 
-cada thread. Portanto, agora diminuimos o problema de threads ociosas,
+programa agora é capaz de, dinamicamente, delegar blocos de pixels a 
+cada thread. Portanto, agora diminuímos o problema de threads ociosas,
 porque podemos dividir mais os blocos de trabalho e sempre que uma 
 thread termina um bloco, podemos dar a ela um novo bloco para computar 
 (desde que ainda haja trabalho a ser feito).
@@ -192,7 +195,7 @@ maior controle de concorrência. O conceito principal utilizado é o de
 execução em espera, enquanto as threads calculam os pixels, para voltar
 a ser executada quando alguma thread estiver livre.
 
-Diminuido o problema de threads ociosas, é esperado que essa 
+Diminuído o problema de threads ociosas, é esperado que essa 
 implementação seja mais rápida do que a anterior, porém, é necessário 
 notar que o nosso código ficou mais complexo, e exige mais recursos
 computacionais para o controle das threads. Esse tempo pode ser 
@@ -243,7 +246,10 @@ bem dividido.
 
 \newpage
 \section{Código em OpenMP}
-Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do conjunto Mandelbrot, como cada iteração possui tempo de execução diferente para cada pixel, utilizamos \textit{dynamic scheduling}, sendo ela que oferece melhor distribuição de trabalho.
+Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo
+do conjunto Mandelbrot, como cada iteração possui tempo de execução 
+diferente para cada pixel, utilizamos \textit{dynamic scheduling}, 
+sendo ela que oferece melhor distribuição de trabalho.
 
 
 \begin{figure}[H]
@@ -259,11 +265,14 @@ Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do con
             \label {fig:omp_all:B}
         }
     \end{tabular}
-    \caption{(b) representa uma ampliação dos dados de imagens de 2048 pixels da figura (a) .}
+    \caption{(b) representa uma ampliação dos dados de imagens de 2048 
+    pixels da figura (a) .}
     \label{fig:omp_all} 
 \end{figure}
 
-Há um aumento de tempo de execução no cálculo do conjunto de regiões ampliadas como *spiral*, *elephant* devido ao maior número de cálculos envolvidos em uma região ampliada do nosso conjunto.
+Há um aumento de tempo de execução no cálculo do conjunto de regiões 
+ampliadas como *spiral*, *elephant* devido ao maior número de cálculos 
+envolvidos em uma região ampliada do nosso conjunto.
 
 \begin{figure}[H]
     \centering
@@ -289,7 +298,8 @@ Há um aumento de tempo de execução no cálculo do conjunto de regiões amplia
         }
         
     \end{tabular}
-    \caption{Temos a comparação de execução entre as 4 regiões do conjunto.}
+    \caption{Temos a comparação de execução entre as 4 regiões do 
+    conjunto.}
     \label{fig:omp_full} 
 \end{figure}
 
