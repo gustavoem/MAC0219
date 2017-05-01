@@ -155,7 +155,7 @@ o uso de pthreads, tentando se aproximar ao comportamento do OpenMP e
 suas diretivas {\em omp parallel for schedule (dynamic)} e {\em omp 
 parallel for schedule (static)}. As diferenças de funcionamento dos 
 dois códigos está na maneira em que o trabalho é dividido e como ele é
-distribuido para cada thread.
+distribuído para cada thread.
 
 \subsection{Implementação com Divisão Estática}
 Chamamos de implementação com divisão estática a versão do nosso 
@@ -193,12 +193,12 @@ várias linhas de processamento.
     \centering
     \begin{tabular}{c c}
         \subfigure[] {\scalebox{.35}{
-            \includegraphics{time_x_thread_numpth_sta_n512.png}}
+            \includegraphics{pthread_numthreads/time_x_thread_numpth_sta_n512.png}}
             \label {fig:higher_thread_num:A}
         }
         &
         \subfigure[] {\scalebox{.35}{
-            \includegraphics{time_x_thread_numpth_sta_n2048.png}}
+            \includegraphics{pthread_numthreads/time_x_thread_numpth_sta_n2048.png}}
             \label {fig:higher_thread_num:B}
         }
 
@@ -244,38 +244,27 @@ maior controle de concorrência. O conceito principal utilizado é o de
 execução em espera, enquanto as threads calculam os pixels, para voltar
 a ser executada quando alguma thread estiver livre.
 
-Diminuído o problema de threads ociosas, é esperado que essa 
-implementação seja mais rápida do que a anterior, porém, é necessário 
-notar que o nosso código ficou mais complexo, e exige mais recursos
-computacionais para o controle das threads. Esse tempo pode ser 
-prejudicial se o tamanho do chunk for pequeno, pois nessa situação
-há muitas trocas de chunks em cada thread, fazendo com que a maior parte
-do tempo de processamento seja gasto no controle das threads. Por outro
-lado, se temos chunks grandes o tempo gasto deve aumentar, porque caímos
-novamente no problema da implementação static, onde o trabalho não era
-bem dividido.
-
 \begin{figure}[!ht]
     \centering
     \begin{tabular}{c c}
         \subfigure[] {\scalebox{.35}{
-            \includegraphics{time_x_chunk_sizepth2048elephant.png}}
+            \includegraphics{pthread_chunk/time_x_chunk_sizepth2048elephant.png}}
             \label {fig:pthreads_chunk_size:A}
         }
         &
         \subfigure[] {\scalebox{.35}{
-        \includegraphics{time_x_chunk_sizepth2048seahorse_valley.png}
+            \includegraphics{pthread_chunk/time_x_chunk_sizepth2048seahorse_valley.png}
         }
             \label {fig:pthreads_chunk_size:B}
         }
         \\
         \subfigure[] {\scalebox{.35}{
-            \includegraphics{time_x_chunk_sizepth2048triple_spiral.png}}
+            \includegraphics{pthread_chunk/time_x_chunk_sizepth2048triple_spiral.png}}
             \label {fig:pthreads_chunk_size:C}
         }
         &
         \subfigure[] {\scalebox{.35}{
-            \includegraphics{time_x_chunk_sizepth2048full.png}}
+            \includegraphics{pthread_chunk/time_x_chunk_sizepth2048full.png}}
             \label {fig:pthreads_chunk_size:D}
         }
         
@@ -286,11 +275,98 @@ bem dividido.
     \label{fig:pthreads_chunk_size} 
 \end{figure}
 
-\begin{figure}[H]
+
+Diminuído o problema de threads ociosas, é esperado que essa 
+implementação seja mais rápida do que a anterior, porém, é necessário 
+notar que o nosso código ficou mais complexo, e exige mais recursos
+computacionais para o controle das threads. Esse tempo pode ser 
+prejudicial se o tamanho do chunk for pequeno, pois nessa situação
+há muitas trocas de chunks em cada thread, fazendo com que a maior parte
+do tempo de processamento seja gasto no controle das threads. Por outro
+lado, se temos chunks muito grandes, o tempo gasto deve aumentar, porque
+caímos novamente no problema da implementação static, onde o trabalho 
+não era bem dividido. Depois de fazer alguns testes, verificamos 
+que definir o tamanho do chunk igual a quantidade de pixels em uma linha
+da imagem nos dava bons resultados; inclusive, esse foi o mesmo valor 
+adotado em nossa implementação com OpenMP.
+
+\begin{figure}[!h]
     \centering
-    \includegraphics[scale=.5]{time_x_thread_numpth.png}
+    \begin{tabular}{c c}
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_numthreads/time_x_thread_numpth2048_elephant.png}}
+            \label {fig:pthreads_num_threads:A}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+        \includegraphics{pthread_numthreads/time_x_thread_numpth2048_seahorse.png}
+        }
+            \label {fig:pthreads_num_threads:B}
+        }
+        \\
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_numthreads/time_x_thread_numpth2048_triple_spiral.png}}
+            \label {fig:pthreads_num_threads:C}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_numthreads/time_x_thread_numpth2048_full.png}}
+            \label {fig:pthreads_num_threads:D}
+        }
+        
+    \end{tabular}
+    \caption{Podemos observar que existe uma saturação de melhora de 
+    desempenho quando o número de threads atinge o número de cores (8)
+    da máquina.}
+    \label{fig:pthreads_thread_num} 
 \end{figure}
 
+Como distribuímos dinamicamente os blocos de trabalho, é esperado que
+o aumento do número de threads não melhore o problema de threads 
+ociosas, diferente do que vimos na implementação com divisão estática
+e na figura \ref{fig:higher_thread_num}. A melhora com o aumento de 
+threads deve vir unicamente do melhor uso da quantidade de cores da 
+máquina, ou seja, a quantidade de threads deve melhorar o desempenho 
+enquanto não foi maior do que o número de processadores da máquina.
+De fato, observamos esse comportamento na figura 
+\ref{fig:pthreads_thread_num}
+
+Veja abaixo a comparação em consumo de tempo entre as duas 
+implementações de paralelismo com Pthreads:
+\begin{figure}[!h]
+    \centering
+    \begin{tabular}{c c}
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_din_sta/time_x_sizepth-pth_staelephant.png}}
+            \label {fig:pthreads_din_sta:A}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+        \includegraphics{pthread_din_sta/time_x_sizepth-pth_staseahorse.png}
+        }
+            \label {fig:pthreads_din_sta:B}
+        }
+        \\
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_din_sta/time_x_sizepth-pth_statriple_spiral.png}}
+            \label {fig:pthreads_din_sta:C}
+        }
+        &
+        \subfigure[] {\scalebox{.35}{
+            \includegraphics{pthread_din_sta/time_x_sizepth-pth_stafull.png}}
+            \label {fig:pthreads_din_sta:D}
+        }
+        
+    \end{tabular}
+    \caption{Podemos observar nessas figuras que a implementação com
+    divisão dinâmica possui desempenho melhor do que estático e que, 
+    além disso, essa diferença tende a aumentar quando o tamanho da
+    instância também aumenta. É provavel que as regiões onde o trabalho
+    está 
+    Esses testes foram realizados com número de threads igual
+    a quantidade de processadores da máquina.}
+    \label{fig:pthreads_din_sta} 
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%% OPENMP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
