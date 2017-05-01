@@ -13,10 +13,38 @@
 \usepackage{setspace}    % needed for doublespacing
 \usepackage{tikz}
 \usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C
+}
 
 % Macros
 \renewcommand{\familydefault}{\sfdefault} % sans-serif
 \newcommand{\lowtext}[1]{$_{\text{#1}}$}
+\newcommand{\code}[1]{\texttt{#1}}
 
 % Adds ./img/ to the path of figures
 \graphicspath{{./img/}}
@@ -243,19 +271,37 @@ bem dividido.
 
 \newpage
 \section{Código em OpenMP}
-Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do conjunto Mandelbrot, como cada iteração possui tempo de execução diferente para cada pixel, utilizamos \textit{dynamic scheduling}, sendo ela que oferece melhor distribuição de trabalho.
+Para implementar a versão OpenMP do programa do cálculo do conjunto de Mandelbrot tivemos que remover a alocação de memória e comandos de leitura e escrita do códgio fornecido previamente.
+Como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. No caso de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituimos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
+Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como adicionar um \code{\#pragma} antes do \code{for} que realiza o cálculo para cada pixel da imagem:
+\begin{lstlisting}[style=CStyle]
+    #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic)
+    for (i_y = 0; i_y < i_y_max; i_y++) {
+        c_y = c_y_min + i_y * pixel_height;
+        ...
+\end{lstlisting}
+
+Implementando dessa forma obtemos os seguintes resultados:
+\begin{figure}[!h]
+    % \centering
+    \makebox[\textwidth][c]{\includegraphics[scale=.60]{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
+    \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam viziveis.}
+\end{figure}
+
+
+Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do conjunto Mandelbrot, como cada iteração possui tempo de execução diferente para cada pixel, utilizamos \textit{dynamic scheduling}, sendo ela que oferece melhor distribuição de trabalho.
 
 \begin{figure}[H]
     \centering
     \begin{tabular}{c c}
         \subfigure[] {\scalebox{.40}{
-            \includegraphics{omp_all/time_threads_all.png}}
+            \includegraphics{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
             \label {fig:omp_all:A}
         }
         \\
         \subfigure[] {\scalebox{.40}{
-        \includegraphics{omp_all/time_threads_all_minor_values.png}}
+        \includegraphics{for_duplo_plot/timeXthread_elephant_OpenMPpng.png}}
             \label {fig:omp_all:B}
         }
     \end{tabular}
