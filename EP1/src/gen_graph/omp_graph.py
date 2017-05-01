@@ -55,6 +55,12 @@ class Plotter:
         self.reset_colors(12)
         self.init_data_vectors()
     
+    def reset(self):
+        self.fig = plt.figure(figsize=(14, 8))
+        self.ax = self.fig.add_subplot(111)
+        self.reset_colors(12)
+        self.init_data_vectors()
+
     def reset_colors(self, nColors):
         self.cm = plt.get_cmap('gist_rainbow')
         self.ax.set_color_cycle([self.cm(1. * i / nColors) for i in range(nColors)])
@@ -64,7 +70,11 @@ class Plotter:
         self.sizes = [2 ** i for i in size_range]
         self.regions = ["full", "seahorse", "elephant", "spiral"]
 
-    def show(self):
+    def save(self, img_name=""):
+        self.fig.savefig(img_name, dpi=200)
+        self.reset()
+
+    def show(self, img_name=""):
         plt.show()
 
     def get_timeXsize_lists(self, results, reg):
@@ -88,7 +98,7 @@ class Plotter:
         return ylists
 
     def plot(self, xlist, ylist, marker="o", label=""):
-        legend, = plt.plot(xlist, ylist["avg"], marker, mew=3, mfc='none', label=label)
+        legend, = plt.plot(xlist, ylist["avg"], marker, mew=2, mfc='none', label=label)
         plt.plot(xlist, ylist["avg"], color='0.85', linewidth=0.5)
         self.ax.errorbar(xlist, ylist["avg"], yerr=ylist["std_dev"], ecolor='black', color='0.85', linewidth=0.5)
         return legend
@@ -103,7 +113,6 @@ class Plotter:
         legend_handles = []
         legends = []
 
-        print(ylists)
         for nThreads, ylist in ylists.items():
             th_legend = self.plot(self.sizes, ylist)
 
@@ -120,7 +129,7 @@ class Plotter:
         my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
         plt.xticks(self.sizes, my_xticks)
 
-        self.show()
+        self.show("timeXsize_" + reg + "_" + self.implementation + "png")
 
     def timeXthread(self, results, reg):
         self.reset_colors(20)
@@ -145,11 +154,11 @@ class Plotter:
         my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
         plt.xticks(self.threads, my_xticks)
 
-        self.show()
+        self.show("timeXthread_" + reg + "_" + self.implementation + "png")
 
-    def compare_timeXthread(self, results, results2, reg, nColors=10):
-        label1 = "group1"
-        label2 = "group2"
+    def compare_timeXthread(self, results, results2, reg, nColors=10, group1="group 1", group2="group 2"):
+        label1 = group1
+        label2 = group2
 
         self.reset_colors(nColors)
 
@@ -166,27 +175,28 @@ class Plotter:
 
         ### Legends ###
         legends = []
-        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+        colors = [self.cm(1. * i / nColors) for i in range(nColors)]
+        for ind in range(len(self.sizes)):
             lbl = str(2 ** (ind + 4)) + " px"
-            legends.append(mpatches.Patch(color=c, label=lbl))
+            legends.append(mpatches.Patch(color=colors[ind], label=lbl))
 
-        legends.append(mlines.Line2D([], [], marker="o", linestyle="none", color="black", label=label1))
-        legends.append(mlines.Line2D([], [], marker="s", linestyle="none", color="black", label=label2))
+        legends.append(mlines.Line2D([], [], marker="o", mfc='none', linestyle="none", color="black", label=label1))
+        legends.append(mlines.Line2D([], [], marker="s", mfc='none', linestyle="none", color="black", label=label2))
 
         plt.legend(handles = legends)
 
-        plt.title('Comparision of time of execution X number of threads(' + self.implementation + " - " + reg + self.comment + ")")
+        plt.title('Comparision of time of execution X number of threads (' + self.implementation + " - " + reg + self.comment + ")")
         plt.ylabel('Time (s)')
         plt.xlabel('Number of threads')
 
         my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
         plt.xticks(self.threads, my_xticks)
 
-        self.show()
+        self.show("compare_timeXthread_" + reg + "_" + self.implementation + "png")
 
-    def compare_timeXsize(self, results, results2, reg, nColors=6):
-        label1 = "group1"
-        label2 = "group2"
+    def compare_timeXsize(self, results, results2, reg, nColors=10, group1="group 1", group2="group 2"):
+        label1 = group1
+        label2 = group2
 
         self.reset_colors(nColors)
 
@@ -203,16 +213,17 @@ class Plotter:
 
         ### Legends ###
         legends = []
-        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+        colors = [self.cm(1. * i / nColors) for i in range(nColors)]
+        for ind in range(len(self.threads)):
             lbl = str(2 ** ind) + " Threads"
-            legends.append(mpatches.Patch(color=c, label=lbl))
+            legends.append(mpatches.Patch(color=colors[ind], label=lbl))
 
-        legends.append(mlines.Line2D([], [], marker="o", linestyle="none", color="black", label=label1))
-        legends.append(mlines.Line2D([], [], marker="s", linestyle="none", color="black", label=label2))
+        legends.append(mlines.Line2D([], [], marker="o", mfc='none', linestyle="none", color="black", label=label1))
+        legends.append(mlines.Line2D([], [], marker="s", mfc='none', linestyle="none", color="black", label=label2))
 
         plt.legend(handles = legends)
 
-        plt.title('Comparision of time of execution X size of input(' + self.implementation + " - " + reg + self.comment + ")")
+        plt.title('Comparision of time of execution X size of input (' + self.implementation + " - " + reg + self.comment + ")")
         plt.ylabel('Time (s)')
         plt.xlabel('size of input')
 
@@ -220,7 +231,7 @@ class Plotter:
         my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
         plt.xticks(self.sizes, my_xticks)
 
-        self.show()
+        self.show("compare_timeXsize_" + reg + "_" + self.implementation + "png")
 
 
     def all_timeXthread(self, results, nColors=10):
@@ -233,30 +244,31 @@ class Plotter:
 
 
         legends = []
-        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+        colors = [self.cm(1. * i / nColors) for i in range(nColors)]
+        for ind in range(len(self.sizes)):
             lbl = str(2 ** (ind + 4)) + " px"
-            legends.append(mpatches.Patch(color=c, label=lbl))
+            legends.append(mpatches.Patch(color=colors[ind], label=lbl))
 
         markers = ["o", "^", "s", "x"]
         for reg in self.regions:
             marker = markers.pop(0)
-            legends.append(mlines.Line2D([], [], marker=marker, linestyle="none", color="black", label=reg))
+            legends.append(mlines.Line2D([], [], marker=marker, mfc='none', linestyle="none", color="black", label=reg))
             self.reset_colors(10)
             for size, ylist in ylists[reg].items():
                 self.plot(self.threads, ylist, marker=marker)
 
         plt.legend(handles = legends)
 
-        plt.title('Time of execution X number of threads(' + self.implementation + " - All regions")
+        plt.title('Time of execution X number of threads (' + self.implementation + " - All regions)")
         plt.ylabel('Time (s)')
         plt.xlabel('Number of threads')
 
         my_xticks = ['$2^{0}$','$2^{1}$','$2^{2}$','$2^{3}$', '$2^{4}$', '$2^{5}$', '$2^{6}$']
         plt.xticks(self.threads, my_xticks)
 
-        self.show()
+        self.show("all_timeXthread" + "_" + self.implementation + "png")
 
-    def all_timeXsize(self, results, nColors=6):
+    def all_timeXsize(self, results, nColors=12):
         self.reset_colors(nColors)
 
         ylists = {}
@@ -266,28 +278,29 @@ class Plotter:
 
 
         legends = []
-        for ind, c in enumerate([self.cm(1. * i / nColors) for i in range(nColors)]):
+        colors = [self.cm(1. * i / nColors) for i in range(nColors)]
+        for ind in range(len(self.threads)):
             lbl = str(2 ** ind) + " Threads"
-            legends.append(mpatches.Patch(color=c, label=lbl))
+            legends.append(mpatches.Patch(color=colors[ind], label=lbl))
 
         markers = ["o", "^", "s", "x"]
         for reg in self.regions:
             marker = markers.pop(0)
-            legends.append(mlines.Line2D([], [], marker=marker, linestyle="none", color="black", label=reg))
+            legends.append(mlines.Line2D([], [], marker=marker, mfc='none', linestyle="none", color="black", label=reg))
             self.reset_colors(10)
             for size, ylist in ylists[reg].items():
                 self.plot(self.sizes, ylist, marker=marker)
 
         plt.legend(handles = legends)
 
-        plt.title('Time of execution X number of threads(' + self.implementation + " - All regions")
+        plt.title('Time of execution x Input size (' + self.implementation + " - All regions)")
         plt.ylabel('Time (s)')
-        plt.xlabel('Number of threads')
+        plt.xlabel('Input size')
 
         my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
         plt.xticks(self.sizes, my_xticks)
 
-        self.show()
+        self.show("all_timeXsize" + "_" + self.implementation + "png")
 
     #### For sequential test plots ####
     def seq_timeXsize(self, results, reg):
@@ -324,9 +337,14 @@ if __name__ == '__main__':
 
         if (len(sys.argv) == 3):
             results2 = parse_parallel_results(argv[2])
-            plot.compare_timeXthread(results, results2, "full")
-        else:
-            # plot.timeXthread(results, "full")
             # plot.timeXsize(results, "full")
+            # plot.timeXthread(results, "full")
+            # plot.all_timeXsize(results)
+            # plot.all_timeXthread(results)
+            # plot.compare_timeXsize(results, results2, "full", group1="Dynamic1", group2="Static1")
+            plot.compare_timeXthread(results, results2, "full", group1="Dynamic1", group2="Static1")
+        else:
+            plot.timeXthread(results, "full")
+            plot.timeXsize(results, "full")
             plot.all_timeXsize(results)
 
