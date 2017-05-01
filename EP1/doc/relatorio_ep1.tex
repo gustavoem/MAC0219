@@ -109,25 +109,44 @@ no mínimo 10 execuções do mesmo comando.
         de várias execuções, somos capazes de dizer aproximadamente
         o comportamento médio do programa.
         
+
+%%%%%%%%%%%%%%%%%%%%% SEQUENCIAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Código Sequencial}
-O cálculo do conjunto em código sequencial ocorre sem nenhuma 
-paralelização. No trabalho, a versão com alocação de memória e operações
-de IO chama-se mandelbrot\_seq.c, enquanto que a versão sem a alocação e
-sem IO chama-se mandelbrot\_seq\_s.c. 
-Definimos o tamanho do nosso image\_buffer[11500 x 11500 x 3][3] como 
-tamanho máximo para os nossos testes com imagens 11500px por 11500px.
+Para implementar a versão sequencial do programa do cálculo do conjunto de Mandelbrot temos uma versão com alocação de memória e com comandos de leitura e escrita e uma versão sem ambos. No caso sem ambos, como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. Para a remoção de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituimos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
-A seguir, temos a comparação de performance entre uma versão com 
-alocação e IO, com outra sem alocação e sem IO:
+Comparemos os resultados obtidos nos testes com e sem alocação de memória e comandos de leitura e escrita:
 
-(insert image)
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.60]{seq_comp/compare_timeXsize_full_OpenMPpng.png}}
+\end{figure}
 
-Possuindo uma matriz com o tamanho pré definido libera a necessidade de 
-acessar a memória e fazer a alocação, dando nos resultados mais rápidos.
+Como esperado o tempo do programa sem alocação e sem comandos de leitura e escrita é consideravelmente menor que a versão com. Nas demais regiões o comportamento se repete:
 
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_comp/compare_timeXsize_elephant_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_comp/compare_timeXsize_seahorse_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_comp/compare_timeXsize_spiral_OpenMPpng.png}}
+\end{figure}
+
+Nota-se que o tempo em cada região é diferente, pois em cada região pode haver mais cálculos de pontos com mais interações. Notemos ainda que a diferença de tempo para cada tamanho de entrada se mantem mesmo mudando-se as regiões. Por exemplo, a versão sem alocação dinamica e sem operações de leitura e escrita executa cerca de 10 segundos mais rapido que a versão com, dado a entrada de tamanho $2^(13)$, independente da região. Isso ocorre, pois comandos de leitura e escrita e alocação dinamica, dependem do tamanho da entrada e independem do número de interações do cálculo para determinado ponto.
+
+Para cada implementação também vemos que o tempo para calcular a região Full foi bastante menor que para as demais regiões:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_no/all_timeXsize_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_with/all_timeXsize_OpenMPpng.png}}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%% PTHREADS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-
 \section{Código em Pthreads}
 Utilizamos duas diferentes abordagens para paralelizar o código com
 o uso de pthreads, tentando se aproximar ao comportamento do OpenMP e 
@@ -347,7 +366,7 @@ implementações de paralelismo com Pthreads:
     \label{fig:pthreads_din_sta} 
 \end{figure}
 
-
+%%%%%%%%%%%%%%%%%%%%% OPENMP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Código em OpenMP}
 Para implementar a versão OpenMP do programa do cálculo do conjunto de Mandelbrot tivemos que remover a alocação de memória e comandos de leitura e escrita do códgio fornecido previamente.

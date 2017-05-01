@@ -75,7 +75,8 @@ class Plotter:
         self.reset()
 
     def show(self, img_name=""):
-        plt.show()
+        self.save(img_name)
+        # plt.show()
 
     def get_timeXsize_lists(self, results, reg):
         ylists = {nThreads: {"avg": [], "std_dev": []} for nThreads in self.threads}
@@ -308,9 +309,9 @@ class Plotter:
         self.timeXsize(results, reg)
 
 
-    def compare_seq_timeXsize(self, results, results2, reg):
+    def compare_seq_timeXsize(self, results, results2, reg, group1="group1", group2="group2"):
         self.init_data_vectors(threads_range=range(1))
-        self.compare_timeXsize(results, results2, reg, nColors=1)
+        self.compare_timeXsize(results, results2, reg, nColors=1, group1=group1, group2=group2)
 
     def all_seq_timeXsize(self, results, nColors=1):
         self.init_data_vectors(threads_range=range(1))
@@ -327,7 +328,11 @@ if __name__ == '__main__':
 
         if (len(sys.argv) == 4):
             results2 = parse_sequential_results(argv[3])
-            plot.compare_seq_timeXsize(results, results2, "full")
+            # for reg in plot.regions:
+            #     plot.seq_timeXsize(results, reg)
+            # plot.all_seq_timeXsize(results)
+            for reg in plot.regions:
+                plot.compare_seq_timeXsize(results, results2, reg, "No Aloc & I/O", "With Aloc & I/O")
         else:
             plot.all_seq_timeXsize(results, "full")
 
