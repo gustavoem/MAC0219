@@ -286,11 +286,47 @@ Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como adicio
 \end{lstlisting}
 
 Implementando dessa forma obtemos os seguintes resultados:
-\begin{figure}[!h]
-    % \centering
+\begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.60]{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
     \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam viziveis.}
 \end{figure}
+
+Percebemos que o aumento de threads de fato melhorou o tempo de execução do programa. No entanto ao ultrapassar 8, o mesmo número de cores da maquina testada, não houve grande melhora no tempo de execução. Esse mesmo comportamento foi observado para as demais regiões:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/timeXthread_elephant_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/timeXthread_seahorse_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/timeXthread_spiral_OpenMPpng.png}}
+\end{figure}
+
+Nota-se que nessas regiões apesar do comportamento do tempo X numero de threads manter-se o mesmo, o tempo de execução aumenta, pois nessas regiões há mais cálculos de pontos com mais interações. Podemos comparar todas as regiões:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/all_timeXthread_OpenMPpng.png}}
+\end{figure}
+
+Vemos que as regiões Spiral, Seahorse e Elephant tem tempo de execução bastante maior que a região Full.
+
+Em todos esses gráficos também vemos que quanto maior o tamanho da entrada, mais tempo o programa leva para ser executado. Porém também queremos saber qual é a relação entre tamanho de entrada e o tempo:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/timeXsize_full_OpenMPpng.png}}
+\end{figure}
+
+Vemos que há um aumento exponencial do tempo pelo tamanho da imagem. Vale lembrar que consideramos o tamanho de entrada, somente o tamanho do lado da imagem, portanto o comportamento exponencial se justifica por o número de pixels (chamadas para a função \code{compute\_manderbolt()}) ser o tamanho do lado da imagem elevado ao quadrado.
+
+Nas demais regiões o comportamento é semelhante:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/all_timeXsize_OpenMPpng.png}}
+\end{figure}
+
 
 Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do conjunto Mandelbrot, como cada iteração possui tempo de execução diferente para cada pixel, utilizamos \textit{dynamic scheduling}, sendo ela que oferece melhor distribuição de trabalho.
 
