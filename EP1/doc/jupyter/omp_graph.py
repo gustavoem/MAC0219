@@ -48,7 +48,7 @@ def parse_sequential_results(results_dir):
 
 class Plotter:
     def __init__(self, implementation = "OpenMP", comment = ""):
-        self.fig = plt.figure(figsize=(8, 6))
+        self.fig = plt.figure(figsize=(14, 8))
         self.ax = self.fig.add_subplot(111)
         self.implementation = implementation
         self.comment = comment
