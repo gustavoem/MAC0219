@@ -102,7 +102,7 @@ no mínimo 10 execuções do mesmo comando.
 %%%%%%%%%%%%%%%%%%%%% SEQUENCIAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Código Sequencial}
-Para implementar a versão sequencial do programa do cálculo do conjunto de Mandelbrot temos uma versão com alocação de memória e com comandos de leitura e escrita e uma versão sem ambos. No caso sem ambos, como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. Para a remoção de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituimos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
+Para implementar a versão sequencial do programa do cálculo do conjunto de Mandelbrot temos uma versão com alocação de memória e com comandos de leitura e escrita e uma versão sem ambos. No caso sem ambos, como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. Para a remoção de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituímos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
 Comparemos os resultados obtidos nos testes com e sem alocação de memória e comandos de leitura e escrita:
 
@@ -122,7 +122,7 @@ Como esperado o tempo do programa sem alocação e sem comandos de leitura e esc
     \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_comp/compare_timeXsize_spiral_OpenMPpng.png}}
 \end{figure}
 
-Nota-se que o tempo em cada região é diferente, pois em cada região pode haver mais cálculos de pontos com mais interações. Notemos ainda que a diferença de tempo para cada tamanho de entrada se mantem mesmo mudando-se as regiões. Por exemplo, a versão sem alocação dinamica e sem operações de leitura e escrita executa cerca de 10 segundos mais rapido que a versão com, dado a entrada de tamanho $2^(13)$, independente da região. Isso ocorre, pois comandos de leitura e escrita e alocação dinamica, dependem do tamanho da entrada e independem do número de interações do cálculo para determinado ponto.
+Nota-se que o tempo em cada região é diferente, pois em cada região pode haver mais cálculos de pontos com mais interações. Notemos ainda que a diferença de tempo para cada tamanho de entrada se mantem mesmo mudando-se as regiões. Por exemplo, a versão sem alocação dinâmica e sem operações de leitura e escrita executa cerca de 10 segundos mais rápido que a versão com, dado a entrada de tamanho $2^{13}$, independente da região. Isso ocorre, pois comandos de leitura e escrita e alocação dinâmica, dependem do tamanho da entrada e independem do número de interações do cálculo para determinado ponto.
 
 Para cada implementação também vemos que o tempo para calcular a região Full foi bastante menor que para as demais regiões:
 
@@ -350,7 +350,7 @@ implementações de paralelismo com Pthreads:
     \caption{Podemos observar nessas figuras que a implementação com
     divisão dinâmica possui desempenho melhor do que estático e que, 
     além disso, essa diferença tende a aumentar quando o tamanho da
-    instância também aumenta. É provavel que as regiões onde o trabalho
+    instância também aumenta. É provável que as regiões onde o trabalho
     está 
     Esses testes foram realizados com número de threads igual
     a quantidade de processadores da máquina.}
@@ -361,7 +361,7 @@ implementações de paralelismo com Pthreads:
 \newpage
 \section{Código em OpenMP}
 Para implementar a versão OpenMP do programa do cálculo do conjunto de Mandelbrot tivemos que remover a alocação de memória e comandos de leitura e escrita do códgio fornecido previamente.
-Como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. No caso de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituimos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
+Como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. No caso de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituímos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
 Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como adicionar um \code{\#pragma} antes do \code{for} que realiza o cálculo para cada pixel da imagem:
 \begin{lstlisting}[style=CStyle]
@@ -374,7 +374,7 @@ Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como adicio
 Implementando dessa forma obtemos os seguintes resultados:
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.60]{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
-    \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam visiveis.}
+    \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam visíveis.}
 \end{figure}
 
 Percebemos que o aumento de threads de fato melhorou o tempo de execução do programa. No entanto ao ultrapassar 8, o mesmo número de cores da maquina testada, não houve grande melhora no tempo de execução. Esse mesmo comportamento foi observado para as demais regiões:
@@ -414,7 +414,7 @@ Nas demais regiões o comportamento é semelhante:
 \end{figure}
 
 \subsection{Implementação com 1 for}
-Após realizar esses primeiros testes imaginamos que se paralelizassemos o for de dentro o programa pudesse ficar mais rápido. Para fazer isso como eram dois fors simples, decidimos transforma-los em um só:
+Após realizar esses primeiros testes imaginamos que se paralelizássemos o for de dentro o programa pudesse ficar mais rápido. Para fazer isso como eram dois fors simples, decidimos transforma-los em um só:
 
 \begin{lstlisting}[style=CStyle]
     #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic)
@@ -443,7 +443,7 @@ Com essa implementação e usando \code{schedule(dynamic)}, ou seja com o chunk 
 \end{figure}
 
 Para o caso da região full nota-se que em todos os casos a versão com dois fors foi mais rápida que a versão com somente um. Apesar do gráfico da região Full parecer que há mais variação também devemos lembrar que o eixo Y dela vai de 0 a 16, enquanto os demais ultrapassam 80. Se verificarmos as diferenças entre tempos com o mesmo número de threads, haverá sempre uma diferença semelhante em todas as regiões.
-Como talvez o problema sejam os chunks sejam muito pequenos e por conta disso o programa gaste muito tempo fazendo troca de contexto, o próximo experimento foi feito com chunks maiores. Dividimos o número de interações do for pelo número de threads, isto é, cada thread terá um chunk para sí:
+Como talvez o problema sejam os chunks sejam muito pequenos e por conta disso o programa gaste muito tempo fazendo troca de contexto, o próximo experimento foi feito com chunks maiores. Dividimos o número de interações do for pelo número de threads, isto é, cada thread terá um chunk para si:
 \begin{lstlisting}[style=CStyle]
     #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic, i_y_max * i_x_max / nThreads)
     for (i = 0; i < i_y_max * i_x_max; i++) {
@@ -523,7 +523,7 @@ Vemos que nesse caso a implementação estática se comportou melhor que a dinâ
 \end{figure}
 
 
-%%%%%%%%%%%%%%%%% DISCUSSÂO DOS RESULTADOS %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% DISCUSSÃO DOS RESULTADOS %%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Discussão dos Resultados}
 {\bf Por que é recomendado realizar mais de uma medição?} 
@@ -565,18 +565,25 @@ As variações causadas pelas diferentes regiões são devido ao maior número d
 
 Na região Full vemos que a maior parte dos pontos tem poucas iterações do calculo de mandelbrot. A média $\mu = 22.038$ e o desvio padrão $\sigma = 58.217$ comprovam esse fato. Tais valore comparados aos da região Elephant ($\mu = 151.757$, $\sigma = 80.798$), Seahorse ($\mu = 160.667$, $\sigma = 69.371$) e Spiral ($\mu = 183.204$, $\sigma = 49.430$) nos mostram porquê os calculos das regiões, Elephant, Seahorse e Spiral levaram mais tempo. Como nessas regiões há mais iterações em geral, mais tempo é gasto calculando. Isso é multiplicado por cada ponto, o que causa um bom atraso na execução do programa. 
 
-
-DO NUMERO DE THREADS <<< AQUI ESTRELINHA AQUIIIIII
+Quanto ao número de threads, é esperado que um gráfico de tempo de 
+execução por número de threads tenha a forma de um U. Isso acontece, por
+uma lado, porque quando temos poucas threads não usamos o número total
+de processadores da máquina, logo aumentar o número de threads aumenta
+o desempenho. Obviamente, essa melhoria é saturada em uma máquina com
+um número finito de processadores, e além disso, o número grande de 
+threads exige um maior controle, seja do programa principal ou do 
+escalonador do sistema operacional, explicando um aumento no tempo
+de execução quando aumentamos o número de threads.
 
 {\bf Qual o impacto das operações de I/O e alocação de memória no tempo de execução?}
-Vimos na analise da implementação sequencial que as operações de leitura e escrita e a alocação da memória afetam consideravelmente o desempenho. Gostariamos de ver qual foi a diferença entre a implementação com operações de I/O e com alocação em relação à sem ambos. Se pudermos tomar essa diferença teremos uma estimativa do tempo que leva as operações I/O e alocação:
+Vimos na analise da implementação sequencial que as operações de leitura e escrita e a alocação da memória afetam consideravelmente o desempenho. Gostaríamos de ver qual foi a diferença entre a implementação com operações de I/O e com alocação em relação à sem ambos. Se pudermos tomar essa diferença teremos uma estimativa do tempo que leva as operações I/O e alocação:
 
 
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_full_OpenMPpng.png}}
 \end{figure}
 
-Nota-se que o tempo levado pelas operações de I/O e alocação dinamica tem comportamento exponencial em relação ao tamanho da entrada. Vale lembrar que o tamanho da entrada é somente o lado da imagem, portanto o tamanho da matriz a ser alocada também é exponencial em relação ao tamanho da entrada. Para as demais regiões nota-se um comportamento semelhante:
+Nota-se que o tempo levado pelas operações de I/O e alocação dinâmica tem comportamento exponencial em relação ao tamanho da entrada. Vale lembrar que o tamanho da entrada é somente o lado da imagem, portanto o tamanho da matriz a ser alocada também é exponencial em relação ao tamanho da entrada. Para as demais regiões nota-se um comportamento semelhante:
 
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_elephant_OpenMPpng.png}}
@@ -593,6 +600,46 @@ Notemos ainda que os valores também são semelhantes, independente da região. 
 
 \newpage
 \section{Conclusão}
+As discussões que tivemos ao longo do trabalho, enquanto procuramos
+deixar o código mais rápido, foram parecidas para ambas implementações,
+com Pthreads e OpenMP. A principal delas foi decidir entre utilizar
+uma estratégia estática ou dinâmica ao paralelizar um laço, o que nos
+levou a entender melhor a paralelização do código e perceber que, acima
+de tudo, os melhores resultados são atingidos quando dividimos o 
+trabalho igualmente entre as threads. Esse problema parece obvio se não
+considerarmos que, como no problema enfrentado, nem todo pedaço de mesmo
+tamanho do problema consumirá o mesmo tempo de execução.
+
+Outra discussão interessante que foi levantada nesse trabalho, na 
+implementação com pthreads é a responsabilidade de escalonar um
+pedaço de trabalho. Temos duas opções nesse caso: cuidar da divisão do
+trabalho ou jogar o problema para um nível abaixo, no sistema 
+operacional. A primeira solução torna necessário fazer todo o controle 
+de divisão de trabalho em uma threads principal e criar poucas threads 
+(geralmente o mesmo número de processadores na máquina para se resolver 
+o problema).  Na segunda opção, criamos uma thread para cada pedaço
+a ser resolvido, mesmo que isso torne o número de threads muito grande,
+e deixamos com o sistema operacional a responsabilidade de escalonar
+todos esses pedaços que precisam ser resolvidos.
+
+Os testes feitos mostraram que o desempenho do código implementado em
+OpenMP e PThread foram bem parecidos. Porém, gostaríamos de destacar que
+a implementação do código em OpenMP foi muito mais rápida do que a
+implementação em PThreads. Portanto, especificamente para o problema do 
+EP, OpenMP parece ser uma ferramenta mais adequada. 
+
+Entretanto, enquanto analisávamos os dados coletados em nossos 
+programas, na maioria das vezes que obtemos resultados inesperados, a 
+biblioteca que estava sendo usada era OpenMP, o que se deve ao fato de
+não termos implementado de fato uma paralelização; apenas indicamos ao
+compilador como o código deve ser paralelizado. Na implementação com
+pthreads, por outro lado, temos melhor ideia de como o código será 
+executado e temos maior liberdade para decidir sobre isso. Imaginamos 
+que, em problemas mais complexos e com concorrência mais complicada,
+é possível que um código em Pthreads seja mais rápido do que um código
+em OpenMP.
+
+
 \newpage
 
 \end{document}
