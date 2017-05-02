@@ -360,6 +360,10 @@ implementações de paralelismo com Pthreads:
 %%%%%%%%%%%%%%%%%%%%% OPENMP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Código em OpenMP}
+Nós recomendamos a leitura dessa seção escrita utilizando Jupyter. Lá é possível interagir com os gráficos tornando uma experiencia muito mais costrutiva:
+
+\href{https://nbviewer.jupyter.org/github/gustavoem/MAC0219/blob/master/EP1/doc/jupyter/OpenMP.ipynb}{https://nbviewer.jupyter.org/github/gustavoem/MAC0219/blob/master/EP1/doc/jupyter/OpenMP.ipynb}. 
+
 Para implementar a versão OpenMP do programa do cálculo do conjunto de Mandelbrot tivemos que remover a alocação de memória e comandos de leitura e escrita do códgio fornecido previamente.
 Como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. No caso de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituímos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
@@ -524,6 +528,10 @@ Vemos que nesse caso a implementação estática se comportou melhor que a dinâ
 
 \newpage
 \section{OpenMP vs Pthreads}
+Nós recomendamos a leitura dessa seção escrita utilizando Jupyter. Lá é possível interagir com os gráficos tornando uma experiencia muito mais costrutiva:
+
+\href{https://nbviewer.jupyter.org/github/gustavoem/MAC0219/blob/master/EP1/doc/jupyter/OpenMP%20vs%20Pthreads.ipynb}{https://nbviewer.jupyter.org/github/gustavoem/MAC0219/blob/master/EP1/doc/jupyter/OpenMP\%20vs\%20Pthreads.ipynb}. 
+
 Vimos que para ambos, OpenMP e Pthreads, a melhor opção de implementação foi utilizando escalonamento dinâmico e tamanho de chunk igual ao tamanho de entrada. Comparando esses dois algoritmos obtivemos os seguintes resultados:
 
 \begin{figure}[H]
