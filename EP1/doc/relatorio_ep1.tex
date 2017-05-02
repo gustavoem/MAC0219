@@ -513,23 +513,34 @@ As variações causadas pelas diferentes regiões são devido ao maior número d
     }
 \end{figure}
 
-% \begin{figure}[H]
-%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/full_hist.png}}
-% \end{figure}
+Na região Full vemos que a maior parte dos pontos tem poucas iterações do calculo de mandelbrot. A média $\mu = 22.038$ e o desvio padrão $\sigma = 58.217$ comprovam esse fato. Tais valore comparados aos da região Elephant ($\mu = 151.757$, $\sigma = 80.798$), Seahorse ($\mu = 160.667$, $\sigma = 69.371$) e Spiral ($\mu = 183.204$, $\sigma = 49.430$) nos mostram porquê os calculos das regiões, Elephant, Seahorse e Spiral levaram mais tempo. Como nessas regiões há mais iterações em geral, mais tempo é gasto calculando. Isso é multiplicado por cada ponto, o que causa um bom atraso na execução do programa. 
 
-% \begin{figure}[H]
-%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/elephant_hist.png}}
-% \end{figure}
 
-% \begin{figure}[H]
-%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/seahorse_hist.png}}
-% \end{figure}
-
-% \begin{figure}[H]
-%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/spiral_hist.png}}
-% \end{figure}
+DO NUMERO DE THREADS <<< AQUI ESTRELINHA AQUIIIIII
 
 {\bf Qual o impacto das operações de I/O e alocação de memória no tempo de execução?}
+Vimos na analise da implementação sequencial que as operações de leitura e escrita e a alocação da memória afetam consideravelmente o desempenho. Gostariamos de ver qual foi a diferença entre a implementação com operações de I/O e com alocação em relação à sem ambos. Se pudermos tomar essa diferença teremos uma estimativa do tempo que leva as operações I/O e alocação:
+
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_full_OpenMPpng.png}}
+\end{figure}
+
+Nota-se que o tempo levado pelas operações de I/O e alocação dinamica tem comportamento exponencial em relação ao tamanho da entrada. Vale lembrar que o tamanho da entrada é somente o lado da imagem, portanto o tamanho da matriz a ser alocada também é exponencial em relação ao tamanho da entrada. Para as demais regiões nota-se um comportamento semelhante:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_elephant_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_seahorse_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_spiral_OpenMPpng.png}}
+\end{figure}
+
+Notemos ainda que os valores também são semelhantes, independente da região. Como explicado anteriormente, isso se deve ao fato de que as operações de I/O e a alocação de memória independem do número de iterações do cálculo de mandelbrot em cada ponto.
+
+
 \newpage
 \section{Conclusão}
 \newpage

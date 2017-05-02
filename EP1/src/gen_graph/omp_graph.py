@@ -235,6 +235,42 @@ class Plotter:
 
         self.show("compare_timeXsize_" + reg + "_" + self.implementation + "png")
 
+    def compare_timeXsize_differnce(self, results, results2, reg, nColors=10, group1="group 1", group2="group 2"):
+        label1 = group1
+        label2 = group2
+        self.init_data_vectors(threads_range=range(1))
+
+        self.reset_colors(nColors)
+
+        ylists1 = self.get_timeXsize_lists(results, reg)
+        ylists2 = self.get_timeXsize_lists(results2, reg)
+
+        ylists = {}
+        for size, _ in ylists1.items():
+            ylists[size] = {}
+            ylists[size]["avg"] = [ylists2[size]["avg"][i] - ylists1[size]["avg"][i] for i, _ in enumerate(ylists1[size]["avg"])]
+            ylists[size]["std_dev"] = max(ylists1[size]["std_dev"], ylists2[size]["std_dev"])
+
+        legends = []
+        legend_handles = []
+        for size, ylist in ylists.items():
+            leg = self.plot(self.sizes, ylist)
+
+        ### Legends ###
+        legend_handles.append(leg)
+        legends.append(label2 + " - " + label1)
+
+        plt.legend(legend_handles, legends)
+
+        plt.title('Difference between time of execution of ' + label2 + " and " + label1 + ' X size of input (' + self.implementation + " - " + reg + self.comment + ")")
+        plt.ylabel('Time (s)')
+        plt.xlabel('size of input')
+
+
+        my_xticks = ['$2^{4}$','$2^{5}$','$2^{6}$','$2^{7}$', '$2^{8}$', '$2^{9}$', '$2^{10}$', '$2^{11}$', '$2^{12}$', '$2^{13}$']
+        plt.xticks(self.sizes, my_xticks)
+
+        self.show("difference_timeXsize_" + reg + "_" + self.implementation + "png")
 
     def all_timeXthread(self, results, nColors=10):
         self.reset_colors(nColors)
@@ -332,8 +368,10 @@ if __name__ == '__main__':
             # for reg in plot.regions:
             #     plot.seq_timeXsize(results, reg)
             # plot.all_seq_timeXsize(results)
+
             for reg in plot.regions:
-                plot.compare_seq_timeXsize(results, results2, reg, "No Aloc & I/O", "With Aloc & I/O")
+                # plot.compare_seq_timeXsize(results, results2, reg, "No Aloc & I/O", "With Aloc & I/O")
+                plot.compare_timeXsize_differnce(results, results2, reg, group1="No Aloc & I/O", group2="With Aloc & I/O")
         else:
             plot.all_seq_timeXsize(results, "full")
 
