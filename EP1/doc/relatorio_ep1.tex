@@ -97,17 +97,6 @@ Para isso, utilizamos a ferramenta {\em perf}, capaz de realizar
 repetições de experimentos, apresentando resultados médios e com desvio
 padrão. Todos os resultados apresentados aqui foram feitos a partir de
 no mínimo 10 execuções do mesmo comando.
-
-
-    {\bf Por que é recomendado realizar mais de uma medição?} 
-        Porque os resultados observados dependem do estado da máquina
-        durante a execução do programa. Como testamos nossos programas
-        em máquinas com um sistema operacional, rodando diversos outros
-        programas ao mesmo tempo, é esperado que fatores como fila de
-        processos, paginação de memória, etc, interfira no tempo de 
-        execução do nosso programa. Portanto, se tiramos uma média
-        de várias execuções, somos capazes de dizer aproximadamente
-        o comportamento médio do programa.
         
 
 %%%%%%%%%%%%%%%%%%%%% SEQUENCIAL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -559,9 +548,66 @@ No entanto os resultados ainda foram piores do que o for duplo com \code{schedul
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_spiral_OpenMPpng.png}}
 \end{figure}
 
+
+%%%%%%%%%%%%%%%%% DISCUSSÂO DOS RESULTADOS %%%%%%%%%%%%%%%%%%%%%%%
 \newpage
+\section{Discussão dos Resultados}
+{\bf Por que é recomendado realizar mais de uma medição?} 
+    Porque os resultados observados dependem do estado da máquina
+    durante a execução do programa. Como testamos nossos programas
+    em máquinas com um sistema operacional, rodando diversos outros
+    programas ao mesmo tempo, é esperado que fatores como fila de
+    processos, paginação de memória, etc, interfira no tempo de 
+    execução do nosso programa. Portanto, se tiramos uma média
+    de várias execuções, somos capazes de dizer aproximadamente
+    o comportamento médio do programa.
 
+{\bf Por que você acha que existe variabilidade entre execuções do mesmo programa?}
 
+{\bf Como e por que as três versões do programa se comportam com a variação: Do tamanho da entrada? Das regiões do Conjunto de Mandelbrot? Do número de threads?}
+As variações de tempo de execução em relação ao tamanho da entrada ocorrem, pois o tamanho do for dentro da função \code{compute\_mandelbrot()} depende do tamanho da entrada. Isto significa que o for será executado mais vezes se o tamanho da entrada for maior e consequentemente levará mais tempo para executar o programa.
+
+As variações causadas pelas diferentes regiões são devido ao maior número de pontos onde há maior número de iterações. Vejamos os histogramas de cada uma das regiões:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{
+        \begin{tabular}{c c}
+            \subfigure[] {
+                {\includegraphics[scale=.55]{hist/full_hist.png}}
+            }
+            &
+            \subfigure[] {
+                {\includegraphics[scale=.55]{hist/elephant_hist.png}}
+            }
+            \\
+            \subfigure[] {
+                {\includegraphics[scale=.55]{hist/seahorse_hist.png}}
+            }
+            &
+            \subfigure[] {
+                {\includegraphics[scale=.55]{hist/spiral_hist.png}}
+            }
+        \end{tabular}
+    }
+\end{figure}
+
+% \begin{figure}[H]
+%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/full_hist.png}}
+% \end{figure}
+
+% \begin{figure}[H]
+%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/elephant_hist.png}}
+% \end{figure}
+
+% \begin{figure}[H]
+%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/seahorse_hist.png}}
+% \end{figure}
+
+% \begin{figure}[H]
+%     \makebox[\textwidth][c]{\includegraphics[scale=.55]{hist/spiral_hist.png}}
+% \end{figure}
+
+{\bf Qual o impacto das operações de I/O e alocação de memória no tempo de execução?}
 \newpage
 \section{Conclusão}
 \newpage
