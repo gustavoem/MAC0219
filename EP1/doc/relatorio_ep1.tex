@@ -139,10 +139,12 @@ Para cada implementação também vemos que o tempo para calcular a região Full
 
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_no/all_timeXsize_OpenMPpng.png}}
+    \caption{Implementação sem Operações de leitura e escrita e sem alocação de memória}
 \end{figure}
 
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.50]{seq_with/all_timeXsize_OpenMPpng.png}}
+    \caption{Implementação com Operações de leitura e escrita e com alocação de memória}
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%% PTHREADS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -500,58 +502,61 @@ Nas demais regiões o comportamento é semelhante:
     \makebox[\textwidth][c]{\includegraphics[scale=.50]{for_duplo_plot/all_timeXsize_OpenMPpng.png}}
 \end{figure}
 
+\subsection{Implementação com 1 for}
+Após realizar esses primeiros testes imaginamos que se paralelizassemos o for de dentro o programa pudesse ficar mais rápido. Para fazer isso como eram dois fors simples, decidimos transforma-los em um só:
 
-Outra API usada na paralelização é o OpenMP. Pela natureza do cálculo do conjunto Mandelbrot, como cada iteração possui tempo de execução diferente para cada pixel, utilizamos \textit{dynamic scheduling}, sendo ela que oferece melhor distribuição de trabalho.
+\begin{lstlisting}[style=CStyle]
+    #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic)
+    for (i = 0; i < i_y_max * i_x_max; i++) {
+        i_y = i / i_y_max;
+        i_x = i % i_y_max;
+        ...
+\end{lstlisting}
+
+Com essa implementação e usando \code{schedule(dynamic)}, ou seja com o chunk de tamanho 1, obtivemos os seguintes resultados:
 
 \begin{figure}[H]
-    \centering
-    \begin{tabular}{c c}
-        \subfigure[] {\scalebox{.40}{
-            \includegraphics{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
-            \label {fig:omp_all:A}
-        }
-        \\
-        \subfigure[] {\scalebox{.40}{
-        \includegraphics{for_duplo_plot/timeXthread_elephant_OpenMPpng.png}}
-            \label {fig:omp_all:B}
-        }
-    \end{tabular}
-    \caption{(b) representa uma ampliação dos dados de imagens de 2048 
-    pixels da figura (a) .}
-    \label{fig:omp_all} 
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico/compare_timeXthread_full_OpenMPpng.png}}
 \end{figure}
 
-Há um aumento de tempo de execução no cálculo do conjunto de regiões 
-ampliadas como *spiral*, *elephant* devido ao maior número de cálculos 
-envolvidos em uma região ampliada do nosso conjunto.
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico/compare_timeXthread_elephant_OpenMPpng.png}}
+\end{figure}
 
 \begin{figure}[H]
-    \centering
-    \begin{tabular}{c c}
-        \subfigure[] {\scalebox{.20}{
-            \includegraphics{omp_full/time_input_omp_minor_values.png}}
-            \label {fig:omp_full:A}
-        }
-        &
-        \subfigure[] {\scalebox{.20}{
-        \includegraphics{omp_full/time_input_omp.png}}
-            \label {fig:omp_full:B}
-        }
-        \\
-        \subfigure[] {\scalebox{.20}{
-            \includegraphics{omp_full/time_thread_omp_minor_values.png}}
-            \label {fig:omp_full:C}
-        }
-        &
-        \subfigure[] {\scalebox{.20}{
-            \includegraphics{omp_full/time_thread_omp.png}}
-            \label {fig:omp_full:D}
-        }
-        
-    \end{tabular}
-    \caption{Temos a comparação de execução entre as 4 regiões do 
-    conjunto.}
-    \label{fig:omp_full} 
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico/compare_timeXthread_seahorse_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico/compare_timeXthread_spiral_OpenMPpng.png}}
+\end{figure}
+
+Para o caso da região full nota-se que em todos os casos a versão com dois fors foi mais rápida que a versão com somente um. Apesar do gráfico da região Full parecer que há mais variação também devemos lembrar que o eixo Y dela vai de 0 a 16, enquanto os demais ultrapassam 80. Se verificarmos as diferenças entre tempos com o mesmo número de threads, haverá sempre uma diferença semelhante em todas as regiões.
+Como talvez o problema sejam os chunks sejam muito pequenos e por conta disso o programa gaste muito tempo fazendo troca de contexto, o próximo experimento foi feito com chunks maiores. Dividimos o número de interações do for pelo número de threads, isto é, cada thread terá um chunk para sí:
+\begin{lstlisting}[style=CStyle]
+    #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic, i_y_max * i_x_max / nThreads)
+    for (i = 0; i < i_y_max * i_x_max; i++) {
+        i_y = i / i_y_max;
+        i_x = i % i_y_max;
+        ...
+\end{lstlisting}
+
+No entanto os resultados ainda foram piores do que o for duplo com \code{schedule(dynamic)}:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_full_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_elephant_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_seahorse_OpenMPpng.png}}
+\end{figure}
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_spiral_OpenMPpng.png}}
 \end{figure}
 
 \newpage
