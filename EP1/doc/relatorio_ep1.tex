@@ -470,7 +470,57 @@ No entanto os resultados ainda foram piores do que o for duplo com \code{schedul
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_spiral_OpenMPpng.png}}
 \end{figure}
 
-Nesse caso como temos um chunk por thread, caso seja um chunk onde haja computações mais complexa que para os demais, é provavel 
+Nesse caso como temos um chunk por thread, caso esse seja um chunk onde haja computações mais complexas que os demais, é provavel que as demais threads terminem antes e somente uma fique processando. Nesse cenário, haveria disperdicio dos recursos do computador e por isso a implementação com 2 fors, que divide os chunks em tamanhos menores, teve resultados com menor tempo de execução.
+
+\subsection{Dynamic vs Static}
+Realizamos também testes entre \code{schedule(dynamic)} e \code{schedule(static)}. Para cada um deles comparamos 3 tamanhos de chunk: chunks de tamanho 1, chunks de tamanho igual ao tamanho de entrada (lado da imagem) e chunks de tamanho tal que haja um chunk por thread ($tamanho\_entrada^2 / nThreads$)
+
+Para chunks de tamanho tal que haja um chunk por thread, notamos que a implementação estatica e dinâmica executam em tempos quase identicos:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_bigbig/compare_timeXthread_full_OpenMPpng.png}}
+    \caption{Grafico da região full}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{
+                {\includegraphics[width=.4\textwidth]{static_bigbig/compare_timeXthread_elephant_OpenMPpng.png}} \hfill
+                {\includegraphics[width=.4\textwidth]{static_bigbig/compare_timeXthread_seahorse_OpenMPpng.png}} \hfill
+                {\includegraphics[width=.4\textwidth]{static_bigbig/compare_timeXthread_spiral_OpenMPpng.png}}
+    }
+    \caption{Graficos das regiões Elephant, Seahorse e Spiral}
+\end{figure}
+
+Para chunks de tamanho igual ao tamanho de entrada, também notamos que as implementações estatica e dinâmcia executam em tempo bastante semelhantes:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_row/compare_timeXthread_full_OpenMPpng.png}}
+    \caption{Grafico da região full}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{
+                {\includegraphics[width=.4\textwidth]{static_row/compare_timeXthread_elephant_OpenMPpng.png}} \hfill
+                {\includegraphics[width=.4\textwidth]{static_row/compare_timeXthread_seahorse_OpenMPpng.png}} \hfill
+                {\includegraphics[width=.4\textwidth]{static_row/compare_timeXthread_spiral_OpenMPpng.png}}
+    }
+    \caption{Graficos das regiões Elephant, Seahorse e Spiral}
+\end{figure}
+
+Para chunks de tamanho 1, obtivemos valores mais variados:
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_1_comp/compare_timeXthread_full_OpenMPpng.png}}
+\end{figure}
+
+Vemos que nesse caso a implementação estática se comportou melhor que a dinâmica. No entanto para regiões com mais pontos de muitas iterações do cálculo de mandelbrot notamos que para 4 e 8 threads a implementação dinâmica apresenta resultados menores que a estática:
+
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_1_comp/compare_timeXthread_elephant_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_1_comp/compare_timeXthread_seahorse_OpenMPpng.png}}
+\end{figure}
+\begin{figure}[H]
+    \makebox[\textwidth][c]{\includegraphics[scale=.55]{static_1_comp/compare_timeXthread_spiral_OpenMPpng.png}}
+\end{figure}
 
 
 %%%%%%%%%%%%%%%%% DISCUSSÂO DOS RESULTADOS %%%%%%%%%%%%%%%%%%%%%%%
@@ -485,8 +535,6 @@ Nesse caso como temos um chunk por thread, caso seja um chunk onde haja computa�
     execução do nosso programa. Portanto, se tiramos uma média
     de várias execuções, somos capazes de dizer aproximadamente
     o comportamento médio do programa.
-
-{\bf Por que você acha que existe variabilidade entre execuções do mesmo programa?}
 
 {\bf Como e por que as três versões do programa se comportam com a variação: Do tamanho da entrada? Das regiões do Conjunto de Mandelbrot? Do número de threads?}
 As variações de tempo de execução em relação ao tamanho da entrada ocorrem, pois o tamanho do for dentro da função \code{compute\_mandelbrot()} depende do tamanho da entrada. Isto significa que o for será executado mais vezes se o tamanho da entrada for maior e consequentemente levará mais tempo para executar o programa.
@@ -540,7 +588,7 @@ Nota-se que o tempo levado pelas operações de I/O e alocação dinamica tem co
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{seq_comp/difference_timeXsize_spiral_OpenMPpng.png}}
 \end{figure}
 
-Notemos ainda que os valores também são semelhantes, independente da região. Como explicado anteriormente, isso se deve ao fato de que as operações de I/O e a alocação de memória independem do número de iterações do cálculo de mandelbrot em cada ponto.
+Notemos ainda que os valores também são semelhantes, independente da região. Como explicado anteriormente, isso se deve-se ao fato de que as operações de I/O e a alocação de memória independem do número de iterações do cálculo de mandelbrot em cada ponto.
 
 
 \newpage
