@@ -357,91 +357,13 @@ implementações de paralelismo com Pthreads:
     \label{fig:pthreads_din_sta} 
 \end{figure}
 
-Mas o que acontece quando rodamos a versão estática com muitas threads
-e comparamos com a versão dinâmica? Para responder essa dúvida, 
-decidimos comparar as duas implementações em pthreads de maneira que o
-número de {\em chunks} fosse igual em ambas. Para o código dinâmico, o
-número de threads se manteve igual ao número de cores da máquina 
-enquanto que para o código estático o número de threads passou a ser
-igual a quantidade de pixels em uma linha da imagem. Note que enquanto
-a primeira estratégia cuida do escalonamento dos chunks para cada 
-thread, a segunda cria uma thread para cada chunk e joga a 
-responsabilidade para baixo, com o sistema operacional.
-
-O que observamos nesse experimento, apresentado na 
-\ref{fig:pthreads_din_sta2}, é que o desempenho de ambas estratégias foi
-muito parecido, com desempenho melhor do código estático em instâncias
-de tamanho perto de $2^{13}$. O motivo da implementação dinâmica ter 
-desempenho pior se deve provavelmente ao nosso escalonador em pthreads,
-que precisa criar e dar join em threads várias vezes. Poderíamos fazer
-outra implementação onde a própria thread "escolhe" um chunk para 
-calcular, mas não o faremos por falta de tempo. Apesar disso, é visível
-que esse overhead se torna insignificante conforme aumentamos o tamanho
-da instância sendo resolvida. 
-
-Por fim, consideramos melhor a implementação dinâmica, porque ela 
-depende menos do sistema operacional e máquina utilizada. Muitos 
-sistemas operacionais definem limite na quantidade de processos na 
-máquina, o que traz um limite no programa estático. Além disso, caso o 
-escalonador do sistema usado seja muito ruim, o desempenho do código 
-dinâmico deve ser muito melhor.
-
-
-\begin{figure}[!h]
-    \centering
-    \begin{tabular}{c c}
-        \subfigure[] {\scalebox{.35}{
-            \includegraphics{pthread_din_sta/time_x_sizepth-pth_staelephant2.png}}
-            \label {fig:pthreads_din_sta2:A}
-        }
-        &
-        \subfigure[] {\scalebox{.35}{
-        \includegraphics{pthread_din_sta/time_x_sizepth-pth_staseahorse2.png}
-        }
-            \label {fig:pthreads_din_sta2:B}
-        }
-        \\
-        \subfigure[] {\scalebox{.35}{
-            \includegraphics{pthread_din_sta/time_x_sizepth-pth_statriple_spiral2.png}}
-            \label {fig:pthreads_din_sta2:C}
-        }
-        &
-        \subfigure[] {\scalebox{.35}{
-            \includegraphics{pthread_din_sta/time_x_sizepth-pth_stafull2.png}}
-            \label {fig:pthreads_din_sta2:D}
-        }
-        
-    \end{tabular}
-    \caption{Neste teste, o número de threads usada na implementação 
-    estática foi igual ao de pixels em uma linha da imagem.
-    No código dinâmico, o número de threads foi exatamente o número de 
-    processadores da máquina, além disso, a quantidade de chunks é
-    igual ao número de pixels em uma linha da imagem. Lembrando que o
-    código estático cria um número de chunks igual ao de threads,
-    podemos dizer que o número de chunks é igual em ambas 
-    implementações.
-    }
-    \label{fig:pthreads_din_sta2} 
-\end{figure}
-
-
 %%%%%%%%%%%%%%%%%%%%% OPENMP %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Código em OpenMP}
-Para implementar a versão OpenMP do programa do cálculo do conjunto de 
-Mandelbrot tivemos que remover a alocação de memória e comandos de 
-leitura e escrita do código fornecido previamente. Como não há comandos
-de leitura, os comandos de leitura e escrita são retirados, removendo-se
-a função \code{write\_to\_file()}. No caso de alocação de memória pode 
-ser que o tempo de acesso a um vetor possa ser relevante, portanto não
-simplesmente removemos a função de alocação de memória. Para retirar as
-alocações, supomos que o tamanho máximo de uma imagem será de 11500px x
-11500px e assim substituímos a alocação dinâmica do \code{image\_buffer}
-por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
+Para implementar a versão OpenMP do programa do cálculo do conjunto de Mandelbrot tivemos que remover a alocação de memória e comandos de leitura e escrita do códgio fornecido previamente.
+Como não há comandos de leitura, os comandos de leitura e escrita são retirados, removendo-se a função \code{write\_to\_file()}. No caso de alocação de memória pode ser que o tempo de acesso a um vetor possa ser relevante, portanto não simplesmente removemos a função de alocação de memória. Para retirar as alocações, supomos que o tamanho máximo de uma imagem será de 11500px x 11500px e assim substituimos a alocação dinâmica do \code{image\_buffer} por uma alocação estática: \code{char image\_buffer[11500*11500][3]}.
 
-Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como
-adicionar um \code{\#pragma} antes do \code{for} que realiza o cálculo
-para cada pixel da imagem:
+Para paralelizar o cálculo, como esperado do OpenMP, é tão fácil como adicionar um \code{\#pragma} antes do \code{for} que realiza o cálculo para cada pixel da imagem:
 \begin{lstlisting}[style=CStyle]
     #pragma omp parallel for private(...) num_threads(nThreads) schedule(dynamic)
     for (i_y = 0; i_y < i_y_max; i_y++) {
@@ -452,7 +374,7 @@ para cada pixel da imagem:
 Implementando dessa forma obtemos os seguintes resultados:
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.60]{for_duplo_plot/timeXthread_full_OpenMPpng.png}}
-    \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam visíveis.}
+    \caption{Esse gráfico mostra o tempo de execução X numero de threads para cada tamanho de entrada. Esses valores foram experimentados na região "full". Barras de erro também estão plotadas, porém são tão pequenas que talvez não estejam visiveis.}
 \end{figure}
 
 Percebemos que o aumento de threads de fato melhorou o tempo de execução do programa. No entanto ao ultrapassar 8, o mesmo número de cores da maquina testada, não houve grande melhora no tempo de execução. Esse mesmo comportamento foi observado para as demais regiões:
@@ -547,6 +469,8 @@ No entanto os resultados ainda foram piores do que o for duplo com \code{schedul
 \begin{figure}[H]
     \makebox[\textwidth][c]{\includegraphics[scale=.55]{for_duploXunico_bigbig/compare_timeXthread_spiral_OpenMPpng.png}}
 \end{figure}
+
+Nesse caso como temos um chunk por thread, caso seja um chunk onde haja computações mais complexa que para os demais, é provavel 
 
 
 %%%%%%%%%%%%%%%%% DISCUSSÂO DOS RESULTADOS %%%%%%%%%%%%%%%%%%%%%%%
