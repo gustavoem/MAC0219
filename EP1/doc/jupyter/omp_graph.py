@@ -48,7 +48,7 @@ def parse_sequential_results(results_dir):
 
 class Plotter:
     def __init__(self, implementation = "OpenMP", comment = ""):
-        self.fig = plt.figure(figsize=(14, 8))
+        self.fig = plt.figure(figsize=(8, 6))
         self.ax = self.fig.add_subplot(111)
         self.implementation = implementation
         self.comment = comment
@@ -56,7 +56,7 @@ class Plotter:
         self.init_data_vectors()
     
     def reset(self):
-        self.fig = plt.figure(figsize=(14, 8))
+        self.fig = plt.figure(figsize=(8, 6))
         self.ax = self.fig.add_subplot(111)
         self.reset_colors(12)
         self.init_data_vectors()
