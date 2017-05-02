@@ -77,6 +77,7 @@ class Plotter:
     def show(self, img_name=""):
         self.save(img_name)
         # plt.show()
+        self.reset()
 
     def get_timeXsize_lists(self, results, reg):
         ylists = {nThreads: {"avg": [], "std_dev": []} for nThreads in self.threads}
@@ -347,7 +348,8 @@ if __name__ == '__main__':
             # plot.all_timeXsize(results)
             # plot.all_timeXthread(results)
             # plot.compare_timeXsize(results, results2, "full", group1="Dynamic1", group2="Static1")
-            plot.compare_timeXthread(results, results2, "full", group1="Dynamic1", group2="Static1")
+            for reg in plot.regions:
+                plot.compare_timeXthread(results, results2, reg, group1="Static, 1", group2="Dynamic, 1")
         else:
             plot.timeXthread(results, "full")
             plot.timeXsize(results, "full")
